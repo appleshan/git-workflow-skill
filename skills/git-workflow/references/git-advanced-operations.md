@@ -760,7 +760,7 @@ git ps
 
 ## 参考资料
 
-- Git Aliases 配置：`/home/alecshan/projects/private/dotfiles/git/.config/git/conf/aliases.gitconfig`
+- Git Aliases 配置：[aliases.gitconfig](https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/aliases.gitconfig)
 - Git Workflow Skill：`~/.claude/skills/git-workflow/SKILL.md`
 - Pro Git Book - Rewriting History：https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History
 - Atlassian Git Tutorials - Rewriting History：https://www.atlassian.com/git/tutorials/rewriting-history

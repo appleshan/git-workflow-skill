@@ -221,7 +221,7 @@ git reflog > ~/git-reflog-backup-$(date +%Y%m%d).txt
 
 ## 参考资料
 
-- Git Aliases 配置：`/home/alecshan/projects/private/dotfiles/git/.config/git/conf/aliases.gitconfig`
-- Git Aliases 参考手册：`/home/alecshan/projects/private/dotfiles/git/.config/git/conf/Git-Aliases-参考手册.md`
+- Git Aliases 配置：[aliases.gitconfig](https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/aliases.gitconfig)
+- Git Aliases 参考手册：[Git-Aliases-Reference-Manual.md](https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/Git-Aliases-Reference-Manual.md)
 - Git Flight Rules：https://github.com/k88hudson/git-flight-rules
 - Oh Shit, Git!：https://ohshitgit.com/

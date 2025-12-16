@@ -734,7 +734,7 @@ git ps --force-with-lease  # 安全的 force push
 
 ## 参考资料
 
-- Git Aliases 配置：`/home/alecshan/projects/private/dotfiles/git/.config/git/conf/aliases.gitconfig`
+- Git Aliases 配置：[aliases.gitconfig](https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/aliases.gitconfig)
 - Git Workflow Skill：`~/.claude/skills/git-workflow/SKILL.md`
 - GitHub PR 最佳实践：https://github.com/blog/1943-how-to-write-the-perfect-pull-request
 - Google Code Review Guidelines：https://google.github.io/eng-practices/review/
