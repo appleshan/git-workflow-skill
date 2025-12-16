@@ -1,0 +1,701 @@
+# ======== Custom Variables ========
+# Custom variables for the topic workflow, mainly defining the branch to push to the remote repository
+[gitalias "topic.base.branch"]
+    name = main
+
+[alias]
+# Many aliases are from https://github.com/GitAlias/gitalias/blob/master/gitalias.txt
+; NOTE: Do not name aliases "sync" or "cp" to avoid conflicts with git-extras
+
+; {{{ ### work flow ###
+
+; ======== Topic Workflow =========
+; NOTE: The prerequisites for this workflow to work correctly are:
+;       1. Only one remote repository named 'origin'
+;       2. Local branch and remote branch have the same name
+;
+    ; Reference: https://github.com/GitAlias/gitalias/blob/master/gitalias.txt#L1217
+    set-global-base-branch = config --global gitalias.topic.base.branch.name
+    set-local-base-branch = config --local gitalias.topic.base.branch.name
+    ; global base-branch defaults to main, here we set local base-branch
+    set-bb = "!git set-local-base-branch"
+    bb = "!git base-branch"
+
+; {{{ topic-new-remote Introduction
+    #
+    # Example:
+    #     git topic-new-remote feat/foo
+    #     git topic-new-remote hotfix/bar
+    #
+    # We use this alias to begin work on a new feature,
+    # new task, new fix, new refactor, new optimization, etc.
+    #
+    # Many teams share branches before they are fully ready, to help
+    # the team provide feedback on the work-in-progress, and also to
+    # run any automatic tests to verify the branch runs successfully.
+    ##
+; }}}
+; {{{ topic-new-remote <topic-branch> [base-branch] Start a topic branch and push to remote
+    topic-new-remote = "!f(){ \
+        topic_branch=$1; \
+        base_branch=${2:-$(git base-branch)}; \
+        base_exists_in_remote=$(git remote-branch $base_branch); \
+        current_branch=$(git current-branch); \
+        if [ -n \"$(git working-dir-dirty)\" ]; then \
+            echo \"============= Autosaving current working directory in branch: $current_branch ============\" \
+            git save \"Autosave on topic-new-remote: $topic_branch\"; \
+        fi; \
+        if [ -n \"$base_exists_in_remote\" ] && [ $(git behind-count $base_branch) -gt 0 ] ; then \
+            git pull origin $base_branch ; \
+        fi; \
+        git checkout -b $topic_branch $base_branch && git push -u origin $topic_branch; \
+        };f"
+
+; }}}
+; {{{ topic-new-local <topic-branch> [base-branch] Start a topic branch locally only
+    topic-new-local = "!f(){ \
+        topic_branch=$1; \
+        base_branch=${2:-$(git base-branch)}; \
+        current_branch=$(git current-branch); \
+        if [ -n \"$(git working-dir-dirty)\" ]; then \
+            echo \"============= Autosaving current working directory in branch: $current_branch ============\" \
+            git save \"Autosave on topic-new-local: $topic_branch\"; \
+        fi; \
+        git checkout -b $topic_branch $base_branch; \
+        };f"
+; }}}
+    tnr = "!git topic-new-remote"
+    tn = "!git topic-new-local"
+
+; {{{  topic-merge [base-branch] Merge topic using merge --no-ff and automatically delete the topic branch
+;   Delete the branch immediately after merging, as merge history allows recovery of the feature branch at any time.
+    topic-merge = "!f() { \
+        topic_branch=$(git current-branch); \
+        base_branch=${1:-$(git base-branch)}; \
+        current_branch=$(git current-branch); \
+        if [ $topic_branch = $base_branch ] || [ $topic_branch = main ]; then \
+            printf \"You are asking to do git topic-merge,\n\"; \
+            printf \"but you can't merge main or base branch: $base_branch.\n\"; \
+            printf \"Please ask to merge valid topic branch.\n\"; \
+        elif [ -n \"$(git working-dir-dirty)\" ]; then \
+            echo 'Current working directory is dirty!; \
+            echo 'Can't checkout'; \
+            return 1; \
+        else \
+            git checkout $base_branch && git merge --no-ff $topic_branch && git topic-delete $topic_branch; \
+        fi; \
+        };f"
+; }}}
+    tmg = "!git topic-merge"
+; {{{ topic-delete [topic-branch] Delete remote (if exists) and local topic branch
+    topic-delete = "!f(){ \
+        topic_branch=${1:-$(git current-branch)}; \
+        base_branch=$(git base-branch); \
+        current_branch=$(git current-branch); \
+        topic_exists_in_remote=$(git remote-branch $topic_branch); \
+        if [ $topic_branch = $base_branch ] || [ $topic_branch = main ]; then \
+            printf \"You are asking to do git topic-delete,\n\"; \
+            printf \"but you can't stop main or base branch: $base_branch.\n\"; \
+            printf \"Please ask to stop valid topic branch.\n\"; \
+        else \
+            if [ -n \"$(git working-dir-dirty)\" ]; then \
+                echo 'Current working directory is dirty!; \
+                echo 'Can't checkout'; \
+                return 1; \
+            fi; \
+            if [ -n \"$topic_exists_in_remote\" ]; then \
+                if [ $(git behind-count $base_branch) -gt 0 ] ; then \
+                    git pull origin $topic_branch; \
+                elif [ $(git ahead-count $base_branch) -gt 0 ] ; then \
+                    git push origin $topic_branch; \
+                fi; \
+                git push origin --delete $topic_branch && git remote-prune-all; \
+            fi; \
+            git checkout $base_branch; \
+            git branch --delete $topic_branch; \
+        fi; \
+        };f"
+; }}}
+    td = "!git topic-delete"
+
+    # Modify an old commit. See https://blog.filippo.io/git-fixup-amending-an-older-commit/
+    # NOTE: 1. If there is a conflict between TARGET..HEAD, a new commit will be submitted; otherwise, only the historical position of the original commit will be changed.
+    # usage:  git fixup <base_branch> [files...] files optional
+    # GIT_EDITOR=true can skip the editing process if there are no conflicts, --autosquash makes the fixup commit appear below the target
+    fixup = "!f() { \
+        target=$(git fzf-commit $(git oldest-changeable-commit) $(git current-branch)); \
+        git commit --fixup=$target && GIT_EDITOR=true git rebase --interactive --autosquash $target~; \
+        }; f"
+
+; {{{ branch-diff Compare with base branch common ancestor
+    branch-diff = "!f(){ \
+        base_branch=${1:-$(git base-branch)}; \
+        common_ancestor=$(git merge-base $base_branch $(git current-branch)); \
+        git diff $common_ancestor HEAD; \
+        };f"
+; }}}
+    bdf = "!git branch-diff"
+
+; {{{ Get only topic branch commits, default to 10 if no count is given, circles indicate common ancestor branch
+    branch-log = "!f() { \
+        parent_branch=${1:-$(git base-branch)}; \
+        common_ancestor=$(git merge-base $parent_branch $(git current-branch)); \
+        git log -${1:-10} $common_ancestor..$(git current-branch) --graph --topo-order --date=short --abbrev-commit --decorate --boundary \
+        --pretty=format:'%Cgreen%ad %Cred%h%Creset -%C(yellow)%d%Creset %s %Cblue[%cn]%Creset %Cblue%G?%Creset'; \
+        }; f"
+; }}}
+    blg = "!git branch-log"
+
+    ; Three ways to view logs: lg tree blg
+    refix = checkout --conflict=diff3  # Revert a file to its state before conflict resolution
+
+; {{{ Edit and add unmerged file
+    ; Edit and stage conflicted files
+    ; NOTE: Workflow:
+    ;             $ git edit-unmerged
+    ;                 ... edit ...
+    ;                 ... test ...
+    ;             $ git add-unmerged
+    ;             $ git commit  # or git rebase --continue or whatever
+    edit-unmerged = "!f() { git diff --name-status --diff-filter=U | cut -f2 ; }; ${EDITOR:-vi} `f`"
+    add-unmerged = "!f() { git diff --name-status --diff-filter=U | cut -f2 ; }; git add `f`"
+; }}}
+
+; {{{ === Deprecated ===
+; {{{ topic-rebase Merge topic via rebase
+    ; topic-rebase = "!f() { \
+    ;     topic_branch=${1:-$(git current-branch)}; \
+    ;     base_branch=$(git base-branch); \
+    ;     current_branch=$(git current-branch); \
+    ;     working_dir_dirty=$(git diff --stat | head -n -1); \
+    ;     if [ $topic_branch = $base_branch ] || [ $topic_branch = main ]; then \
+    ;     printf \"You are asking to do git topic-stop,\n\"; \
+    ;     printf \"but you can't merge main or base branch: $base_branch.\n\"; \
+    ;     printf \"Please ask to merge valid topic branch.\n\"; \
+    ;     else \
+    ;     if [ -n \"$working_dir_dirty\" ]; then \
+    ;     git save \"Autosave on topic-rebase: $topic_branch\"; \
+    ;     fi; \
+    ;     if [ $current_branch != $base_branch ]; then \
+    ;     git checkout $base_branch; \
+    ;     fi; \
+    ;     git pull && git checkout $topic_branch && git rebase $base_branch && git checkout $base_branch && git merge $topic_branch && git push && git topic-stop $topic_branch; \
+    ;     fi; \
+    ;     };f"
+    ;
+    ; trb = "!git topic-rebase"
+; }}}
+; }}}
+
+; }}}
+; {{{ ### git-extras Common Command Notes ###
+;
+;   ==== Utilities ====
+;   git repl: Enter commands continuously without typing 'git'
+;   git commits-since last week/ last month/ yesterday (defaults to last week)
+;   git fork <username>/<repo>: Fork a project from GitHub, clone it, and set origin
+;   git release <tag>: Add a release commit (modify ChangeLog), tag it, and push (also executes .git/hooks/pre-release.sh and .git/hooks/post-release.sh)
+;   git ignore: View or add ignore patterns. e.g., git ignore "*.o" "*.log"
+    ignore-io-append = "!git ignore-io --append $(git ignore-io -l | fzf)"
+    adig = "!git ignore-io-append"
+    ignore-io-replace = "!git ignore-io --replace $(git ignore-io -l | fzf)" ; Replace with another
+;   git delete-tag: Delete local and remote tags. e.g., git delete-tag 0.0.1
+;   git setup: Initialize a folder and make the first commit
+;   git browse: Open in browser
+;   git sync: pull and push
+;
+;   ==== View Information ====
+    author-search = "!git authors --list | fzf"
+;   git standup: View recent commits by someone. e.g., git standup -a John -d 7 (can also be used without parameters to view your own commits)
+;   git contrib <username>: Display a user's recent commits
+;   git summary --line: Line count and percentage information for each person
+;
+    # History tree
+    # from git-extras https://github.com/tj/git-extras/blob/master/bin/git-show-tree
+    show-tree = log --oneline --decorate --graph --simplify-by-decoration --all
+    tree = "!git show-tree"  ; Display details of all branches, showing only the latest commit for each branch
+;
+;   Not currently needed:
+;   git changelog: Recommended to use documentation
+;   git pr
+;   git pullrequest
+;
+; }}}
+
+; {{{ ### add ###
+
+    a = add
+    # add all
+    aa = add -A
+    # add by patch - looks at each change, and asks if we want to put it in the repo.
+    ap = add --patch
+    # add just the files that are updated.
+    au = add --update
+
+; }}}
+; {{{ ### branch ###
+
+    b = branch
+    # Display branch list and untrack deleted remote branches
+    bl = "!git branch -av; git remote-prune-all &"
+    blf = "!git branch --all | fzf"
+
+    bm = branch --merged
+    bnm = branch --no-merged
+    bd = branch --delete
+    bdd = branch -D
+    # Can specify a version number after --list for searching, e.g., git tags '*1' (use \* to escape if no quotes) or no search content
+    tags = tag -n1 --list
+
+    z = checkout
+    zb = checkout -b
+    zz = "!git checkout $(git base-branch)"
+    zd = checkout dev
+    zm = checkout main
+
+    # Rename the current branch; parameter is the new branch name
+    branch-move = "!f(){ \
+        new_branch=$1; \
+        old_branch=$(git current-branch); \
+        exists_in_remote=$(git remote-branch); \
+        git branch --move $old_branch $new_branch; \
+        if [ -n \"$exists_in_remote\" ]; then \
+            git push origin :$old_branch $new_branch; \
+        fi; \
+        };f"
+    bmv = "!git branch-move"
+
+    # Delete all local branches that have been merged into the local main branch.
+    branch-clean-local = "!git branch --merged | egrep -v \"(^\\*|main|dev|$(git base-branch))\" | xargs git branch -d"
+    # Delete all remote branches that have been merged into the remote main branch.
+    branch-clean-remote = "!git branch -r --merged | egrep -v \"(^\\*|main|dev|$(git base-branch))\" | sed 's/origin\\///' | xargs -n 1 git push origin --delete"
+
+; }}}
+; {{{ ### commit ###
+
+    # commit with a message
+    c = commit
+    ca = commit -a
+    cam = commit -a --message
+
+    cm = safe-commit-amend-no-edit
+    cme = safe-commit-amend
+
+    # Apply all new modifications and deleted files to the last commit
+    cmu = "!git add --update && git safe-commit-amend-no-edit"
+    cmue = "!git add --update && git safe-commit-amend"
+
+    # Apply all new modified, added, and deleted files to the last commit
+    cma = "!git add --all && git safe-commit-amend-no-edit"
+    cmae = "!git add --all && git safe-commit-amend"
+
+    # commit and push
+    cap = "!f() { git commit --all -m \"$@\" && git push; }; f"
+
+    # Can only amend commits that have not been pushed
+    safe-commit-amend = "!f() { \
+        HEAD_commit_exists_in_remote=$(git branch -r --contains HEAD); \
+        if [ -n \"$HEAD_commit_exists_in_remote\" ]; then \
+           echo 'HEAD commit exists in remote and you should not amend it. Please make another commit.'; \
+           return; \
+        fi; \
+        git commit --amend; \
+    }; f"
+
+    # Can only amend commits that have not been pushed
+    safe-commit-amend-no-edit = "!f() { \
+        HEAD_commit_exists_in_remote=$(git branch -r --contains HEAD); \
+        if [ -n \"$HEAD_commit_exists_in_remote\" ]; then \
+           echo 'HEAD commit exists in remote and you should not amend it. Please make another commit.'; \
+           return; \
+        fi; \
+        git commit --amend --no-edit; \
+    }; f"
+; }}}
+; {{{ ### checkout ###
+
+    # checkout - update the working tree to match a branch or paths. [same as "o" for "out"]
+    co = checkout
+    cob = checkout -b
+    co-rs = checkout --
+
+; }}}
+; {{{ ### cherry-pick ###
+
+    # cherry-pick - apply the changes introduced by some existing commits; useful for moving small chunks of code between branches.
+    pi = cherry-pick
+    pif = "!git fzf-commit-multi | xargs -n 1 git cherry-pick"
+    # cherry-pick - abort the picking process
+    pia = cherry-pick --abort
+    # cherry-pick - continue the picking process
+    picc = cherry-pick --continue
+    # cherry-pick without making a commit, and when when recording the commit, append a line that says "(cherry picked from commit ...)"
+    pi-nx = cherry-pick --no-commit -x
+
+; }}}
+; {{{ ### clean ###
+    dry = clean -d --dry-run  # Preview what will be cleaned
+    # By default, only untracked files are deleted, excluding ignored files. -d deletes empty directories, -x deletes ignored files.
+    cl = clean -d -i
+    clx = clean -d -x -i
+    # Ignore all untracked files by appending them to .gitignore:
+    ignore-untracked = "!git status | grep -P \"^\\t\" | grep -vF .gitignore | sed \"s/^\\t//\" >> .gitignore"
+
+;}}}
+; {{{ ### diff ###
+
+    d = diff
+    df = diff
+    # diff - show changes about to be commited
+    dc = diff --cached
+
+; }}}
+; {{{ ### grep ###
+
+    rg = !rg $(git rev-parse --show-toplevel) --column --smart-case -e
+    rg-ls = !rg $(git rev-parse --show-toplevel) --files
+    rg-all = !rg $(git rev-parse --show-toplevel) --column --smart-case --no-ignore --hidden -g '!.git' -e
+    rg-all-ls = !rg $(git rev-parse --show-toplevel) --no-ignore --hidden -g '!.git' --files
+
+; }}}
+; {{{ ### log ###
+
+    # NOTE: Adding --graph to log can cause bugs when using nvim as the log pager
+    # log like - we like this summarization our key performance indicators. Also aliased as `log-like`.
+    lg = "!git log -${1:-10} --all --color=always --abbrev=12 --graph --topo-order --date=format:'%Y-%m-%d %H:%M:%S' --boundary \
+                --pretty=format:'%C(yellow)%d%Creset %s %Cblue[%cn] %Cgreen%ad - %C(magenta)%h'; #"
+
+    # View log, NOTE: Depends on script 'ec', Emacs & magit plugins.
+    # Emacs related scripts ec, et, es are from: http://mjwall.com/blog/2013/10/04/how-i-use-emacs/
+    ll = "!ec -e '(magit-log-current)'"
+; }}}
+; {{{ ### merge ###
+
+    ; # merge but without autocommit, and with a commit even if the merge resolved as a fast-forward.
+    ; mg = merge --no-commit --no-ff
+    # merge but without autocommit, and with a commit unless it's a faster-forward merge on the same path
+    ; mg = merge --no-commit
+    mg = merge
+    mgnf = merge --no-ff
+    mgc = "!git add --update && git merge --continue"
+
+    mgt = mergetool
+    ; Merge and delete the merged branch
+    mgd = "!git merge $1 && git branch -d $1; #"
+    ; Display commits of two branches since their common ancestor
+    merge-log = log --oneline --left-right HEAD...MERGE_HEAD
+    ; Display conflicting commits
+    conflict-log = log --oneline --left-right --merge
+
+; }}}
+; {{{ ### rebase ###
+
+    r = rebase
+
+    # This function follows the principle of not modifying commit history that has been pushed
+    # 1. Interactive rebase the current branch back to the common ancestor with base-branch
+    # 2. If the current branch is the base-branch, then rebase -i unpushed commits
+    branch-rebase = "!f(){ \
+        base_branch=${1:-$(git base-branch)}; \
+        common_ancestor=$(git merge-base $base_branch $(git current-branch)); \
+        if [ $base_branch = $(git current-branch) ]; then \
+            common_ancestor=$(git merge-base origin/$(git remote-branch) $(git current-branch)); \
+        fi; \
+        git rebase -i $common_ancestor; \
+    };f"
+    ri = "!git branch-rebase"
+
+    ra = rebase --abort
+    rc = "!git add --update && git rebase --continue"
+
+; }}}
+; {{{ ### remote ###
+
+    # If the remote branch tracked by a local branch is deleted, the tracking will be removed, but the local branch will not be deleted
+    remote-prune-all = !git remote | xargs -n 1 git remote prune
+    # remote - manage set of tracked repositories [same as "r"].
+    ro = remote
+    # remote show - gives some information about the remote <name>.
+    ros = "!git remote show ${1:-origin}"
+
+    remote-untrack = "!git branch --unset-upstream ${1:-$(git current-branch)}"
+    # Push the current branch to the remote "origin", and set it to track the upstream branch
+    publish = "!git push -u origin ${1:-$(git current-branch)}"
+    # Delete remote branch (defaults to current branch name if not specified)
+    unpublish = "!git push origin --delete ${1:-$(git current-branch)} && git branch --unset-upstream ${1:-$(git current-branch)}"
+    # Fire up your difftool (e.g. Kaleidescope) with all the changes that
+    # are on the current branch.
+    code-review = "!git difftool origin/$(git current-branch)"
+
+; }}}
+; {{{ reset
+    rs = reset
+    rss = reset --soft
+    rsh = reset --hard
+
+; }}}
+; {{{ ### revert ###
+
+    # revert - undo the changes from some existing commits
+    rv = revert
+    # Revert the changes of a specific commit without auto-committing, allowing manual intervention in the revert process
+    rvn = revert --no-commit
+
+; }}}
+; {{{ ### stash ###
+;   NOTE: Use save and snapshot to replace native stash
+
+    sapply = "!git stash apply $1"
+    # Save modifications to tracked files (including both unstaged and staged changes)
+    # Use cases: 1. Before switching branches 2. Before commit --amend or fixup operations
+    # Accepts an optional stash message parameter
+    save = "!f() { \
+        custom_message=$1; \
+        WIP_message=WIP; \
+        if [ -n \"$custom_message\" ]; then \
+            WIP_message=\"$WIP_message: $custom_message\"; \
+        fi; \
+        git stash push -m \"$WIP_message - $(date '+%Y-%m-%d %H:%M:%S') - Base commit: $(git log -1 HEAD --pretty=format:'%h %s') \"; \
+    };f"
+    pop = stash pop
+; {{{ snapshot Introduction
+
+    # Stash snapshot - from http://blog.apiaxle.com/post/handy-git-tips-to-stop-you-getting-fired/
+    # Take a snapshot of your current working tree without removing changes.
+    # This is handy for refactoring where you can't quite fit what you've done
+    # into a commit but daren't stray too far from now without a backup.
+    #
+    # Running this:
+    #    $ git snapshot
+    #
+    # Creates this stash:
+    #    stash@{0}: On feature/handy-git-tricks: snapshot: Mon Apr 8 12:39:06 BST 2013
+    #
+    # And seemingly no changes to your working tree.
+; }}}
+    snapshot = "!f() { \
+        custom_message=$1; \
+        Snapshot_message=Snapshot; \
+        if [ -n \"$custom_message\" ]; then \
+            Snapshot_message=\"$Snapshot_message $custom_message\"; \
+        fi; \
+        git save \"Snapshot $1\" && git stash apply 0 >/dev/null 2>&1; \
+    };f"
+    drop = stash drop
+    sl = stash list
+    ; Display hash values of the last 15 stashes NOTE: requires stash comments to contain WIP for grep filtering
+    ; After finding the desired stash, you can restore it with git stash apply $stash_hash or git branch recovered $stash_hash
+    stash-history = "!f() { \
+        git fsck --unreachable | grep commit | cut -d\\  -f3 | xargs git log -15 --oneline --merges --no-walk --grep=WIP; \
+    };f"
+    sh = "!git stash-history"
+
+; }}}
+; {{{ ### submodule ###
+
+    # submodule - enables foreign repositories to be embedded within a dedicated subdirectory of the source tree.
+    sm = submodule
+    smi = submodule init
+    sma = submodule add
+    sms = submodule sync
+    smu = submodule update
+    # submodule update with initialize
+    smui = submodule update --init
+    # submodule update with initialize and recursive; this is useful to bring a submodule fully up to date.
+    smuir = submodule update --init --recursive
+
+; }}}
+; {{{ ### undo ###
+
+    ; Only reverts the git commit operation, preserving the git add operation.
+    uncommit = reset --soft HEAD~1
+    # Revert commit and clear working directory and staging area
+    # The # at the end of the command is required
+    uncommit-n = "!git reset --soft HEAD~$1; #"
+    uncommit-h = reset --hard HEAD~1
+    uncommit-hn = "!git reset --hard HEAD~$1; #"
+    unadd = reset HEAD
+    untrack = rm --cache --
+    unstage = reset HEAD
+    # Discard changes in a (list of) file(s) in working tree
+    discard = checkout --
+
+; }}}
+; {{{ ### Working trees ###
+
+    W ='worktree'
+    Wa ='worktree add'
+    Wls ='worktree list'
+    Wmv ='worktree move'
+    Wp ='worktree prune'
+    Wrm ='worktree remove'
+    Wrmf ='worktree remove --force'
+
+; }}}
+
+; {{{ ### short alias ###
+
+    ps = push
+    ft = fetch
+    pl = pull
+    # Recover a deleted branch with checkout -b <branch> <SHA>, where SHA can be obtained from reflog
+    ref = reflog --no-abbrev
+
+    # status with short format instead of full details
+    s = status --short --branch
+
+; }}}
+; {{{ ### SHELL SCRIPTING ALIASES ###
+    # These are used in other aliases
+    #
+    # Get the top-level directory of the git repository
+    root-dir = rev-parse --show-toplevel
+
+    # Hash of the first commit in this repository
+    first-commit = rev-list --max-parents=0 HEAD
+
+    ; NOTE: Only one value can be selected in fzf, call with $(git fzf-commit)
+    fzf-commit = "!f() { \
+        left=${1:-$(git first-commit)}; \
+        right=${2:-$(git current-branch)}; \
+        commit_hash=$(git log $left..$right --color=always --topo-order --date=format:'%Y-%m-%d %H:%M:%S' --abbrev-commit \
+                --pretty=format:'%Cgreen%ad %C(yellow)%d%Creset %s %Cblue[%cn]%Creset %Cblue%G?%Creset - %Cred%H%Creset' \
+                | fzf | awk '{print $NF}'); \
+        echo $commit_hash; \
+        };f"
+
+    ; NOTE: Multiple values can be selected in fzf, call with: git fzf-commit-multi | xargs -n 1 <command>
+    fzf-commit-multi = "!f() { \
+        left=${1:-$(git first-commit)}; \
+        right=${2:-$(git current-branch)}; \
+        git log --all --color=always --graph --topo-order --date=format:'%Y-%m-%d %H:%M:%S' --abbrev-commit \
+                --pretty=format:' %Cgreen%ad %C(yellow)%d%Creset %s %Cblue[%cn]%Creset %Cblue%G?%Creset - %Cred%H%Creset' \
+                | fzf | awk '{print $NF}' | xargs -n 1 echo; \
+        };f"
+
+
+    # Check if working directory is dirty: if [ -n \"$(git working-dir-dirty)\" ]; then ...
+    working-dir-dirty = "!git diff --stat | head -n -1"
+
+    # The oldest commit that can be safely modified
+    # oldest-changeable-commit [base-branch]
+    oldest-changeable-commit = "!f() { \
+        oldest_commit='' \
+        current_branch=$(git current-branch); \
+        base_branch=${1:-$(git base-branch)}; \
+        common_ancestor=$(git merge-base $base_branch $current_branch); \
+        current_exists_in_remote=$(git remote-branch); \
+        base_exists_in_remote=$(git remote-branch $base_branch); \
+        if [ -n \"$current_exists_in_remote\" ]; then \
+            oldest_commit=origin/$current_branch; \
+        elif [ -n \"$base_exists_in_remote\" ]; then \
+            oldest_commit=origin/$base_branch; \
+        else \
+            oldest_commit=$common_ancestor; \
+        fi; \
+        echo $oldest_commit; \
+        };f"
+
+    # Get the top level directory name
+    top-name = rev-parse --show-toplevel
+    # Get the current branch name
+    current-branch = rev-parse --abbrev-ref HEAD
+    # Get the remote branch name of the current branch
+    # HACK: String concatenation in awk uses two pairs of single quotes awk -F '/' '{if($2~/'$current_branch'/)print $2}'
+    # remote-branch [local-branch]
+    remote-branch = "!f() { \
+        current_branch=${1:-$(git current-branch)}; \
+        git branch -r | awk '{print $1}' | awk -F '/' '{if($2~/'$current_branch'/)print $2}'; \
+    }; f"
+
+    # TODO: Used for checking delete
+    # Number of commits the local branch is ahead of the remote branch
+    ahead-count = "!local_branch=${1:-$(git current-branch)} && git rev-list --count origin/$local_branch..$local_branch"
+    # Number of commits the local branch is behind the remote branch
+    behind-count = "!local_branch=${1:-$(git current-branch)} && git rev-list --count $local_branch..origin/$local_branch"
+
+    # Get the upstream branch name
+    upstream-name = "!git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD)"
+    # Execute shell scripts. Git always runs scripts in the top directory.
+    # For example "git exec pwd" will always show you the top directory.
+    exec = ! exec
+    # Base branch that the topic workflow depends on
+    base-branch = "!f(){ \
+        git config --get gitalias.topic.base.branch.name || printf '%s\n' main; \
+    };f"
+
+
+; }}}
+; {{{ ### other commands ###
+
+    # initalize a repo and immediate add an empty commit, which makes rebase easier.
+    init-empty = "!f() { \
+        git init && git commit --allow-empty --allow-empty-message --message ''; \
+    }; f"
+
+    # ls-files - show information about files in the index and the working tree; like Unix "ls" command.
+    ls = ls-files
+    # ls-ignored -  list files that git has ignored.
+    ls-ignored = ls-files --others --i --exclude-standard
+
+
+    # Expunge a file everywhere; this command is typically for a serious problem,
+    # such as accidentally committing a file of sensitive data, such as passwords.
+    # After you use command, you will likely need to force push everything.
+    # See https://help.github.com/articles/removing-sensitive-data-from-a-repository/
+    expunge = "!f() { \
+        git filter-branch \
+            --force \
+            --index-filter \"git rm --cached --ignore-unmatch $1\" \
+            --prune-empty \
+            --tag-name-filter cat -- --all \
+    }; f"
+
+    # Delete a branch name, then create the same branch name based on main -
+    # useful if you have, for example, a development branch and main branch
+    # and they go out of sync, and you want to nuke the development branch.
+    #
+    # Calls the `publish` and `unpublish` aliases.
+    #
+    recreate = "!f() { \
+        [[ -n $@ ]] && \
+        git checkout \"$@\" && \
+        git unpublish && \
+        git checkout main && \
+        git branch -D \"$@\" && \
+        git checkout -b \"$@\" && \
+        git publish; \
+    }; f"
+
+    # ahead of origin, Show commits that haven't made it to remote main yet.
+    ahead = "!git log --oneline origin/$(git current-branch)..HEAD"
+    # Show the last commit
+    last = log -1 HEAD
+    ; Get everything new:
+    get = !git pull --rebase && git submodule update --init --recursive
+    # Push to all remotes
+    push-to-all-remotes = !git remote | xargs -I% -n1 git push %
+    # Show who contributed, in descending order by number of commits
+    whorank = shortlog --summary --numbered --no-merges
+    ; Get the full hash, useful when encountering hash conflicts
+    abbr = "!sh -c 'git rev-list --all | grep ^$1 | while read commit; do git --no-pager log -n1 --pretty=format:\"%H\" $commit; done' -"
+
+    aliases = "!f() { \
+        git config list | grep '^alias\\.' | cut -c 7-; \
+    }; f"
+
+; }}}
+; {{{ ### unused ###
+    logs = log --oneline --decorate --graph --pretty=format:\"(%h)  %an, %ar: %s\"
+    logs-all = log --oneline --decorate --graph --all --pretty=format:\"(%h)  %an, %ar: %s\"
+    df-staged = diff --staged --color
+
+    # Depends on forgit
+    df-fzf = !git forgit diff
+    ad-fzf = !git forgit add
+    co-rs-fzf = !git forgit checkout_file
+    log-fzf = !git forgit log
+    ig-fzf = !git forgit ignore
+
+    ; edit = !nvim `git ls-files -m --other --exclude-standard` -p
+; }}}

@@ -28,12 +28,12 @@ grep -A 30 "git-workflow" ~/.claude/skills/skill-rules.json
 # 期望输出: git-workflow 配置块
 
 # 3. 验证 JSON 格式
-python3 -m json.tool ~/.claude/skills/skill-workflow/skill-rules.json > /dev/null
+python3 -m json.tool ~/.claude/skills/skill-rules.json > /dev/null
 echo $?
 # 期望输出: 0 (成功)
 
 # 4. 检查 Git aliases
-git config --get-regexp alias | grep -E "tnr|tmg|td"
+git config --get-regexp alias | grep -E "tnr|tn|tmg|td"
 # 期望输出: tnr, tn, tmg, td 等命令
 ```
 

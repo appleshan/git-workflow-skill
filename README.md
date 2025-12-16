@@ -1,51 +1,51 @@
 # Git-Workflow Skill for Claude Code
 
-智能 Git topic 工作流助手，基于生产级 aliases 提供上下文感知的分支管理、安全检查和 PR 准备。
+Intelligent Git topic workflow assistant based on production-grade aliases, providing context-aware branch management, safety checks, and PR preparation.
 
-## 特性
+## Features
 
-### 🎯 核心能力
+### 🎯 Core Capabilities
 
-- **意图识别**：自然语言 → Git 命令的智能映射
-- **安全护栏**：三阶段检查（执行前/中/后）预防误操作
-- **上下文感知**：根据当前分支状态推荐合适的操作
-- **学习辅助**：提供工作流指导和问题诊断
+- **Intent Recognition**: Intelligent mapping from natural language → Git commands
+- **Safety Guardrails**: Three-stage checks (pre/during/post-execution) to prevent misoperations
+- **Context Awareness**: Recommends appropriate actions based on current branch state
+- **Learning Assistance**: Provides workflow guidance and problem diagnosis
 
-### 📦 功能模块
+### 📦 Feature Modules
 
-| 模块 | 功能 | 文档 |
+| Module | Functionality | Documentation |
 |-----|------|------|
-| **核心工作流** | tnr/tn/tmg/td 分支生命周期管理 | [git-topic-workflow.md](~/.claude/skills/git-workflow/references/git-topic-workflow.md) |
-| **安全机制** | 三阶段检查、安全边界、错误处理 | [git-safety-mechanisms.md](~/.claude/skills/git-workflow/references/git-safety-mechanisms.md) |
-| **PR 准备** | 检查清单、质量保证、PR 描述模板 | [git-pr-preparation.md](~/.claude/skills/git-workflow/references/git-pr-preparation.md) |
-| **高级操作** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](~/.claude/skills/git-workflow/references/git-advanced-operations.md) |
-| **故障排查** | 冲突解决、误操作恢复、紧急救援 | [git-troubleshooting.md](~/.claude/skills/git-workflow/references/git-troubleshooting.md) |
+| **Core Workflow** | tnr/tn/tmg/td branch lifecycle management | [git-topic-workflow.md](~/.claude/skills/git-workflow/references/git-topic-workflow.md) |
+| **Safety Mechanisms** | Three-stage checks, safety boundaries, error handling | [git-safety-mechanisms.md](~/.claude/skills/git-workflow/references/git-safety-mechanisms.md) |
+| **PR Preparation** | Checklists, quality assurance, PR description templates | [git-pr-preparation.md](~/.claude/skills/git-workflow/references/git-pr-preparation.md) |
+| **Advanced Operations** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](~/.claude/skills/git-workflow/references/git-advanced-operations.md) |
+| **Troubleshooting** | Conflict resolution, misoperation recovery, emergency rescue | [git-troubleshooting.md](~/.claude/skills/git-workflow/references/git-troubleshooting.md) |
 
 ---
 
-## 快速开始
+## Quick Start
 
-### 前置要求
+### Prerequisites
 
-1. **Git Aliases 配置**（必需）：
+1. **Git Aliases Configuration** (Required):
    ```bash
-   # 位置: ~/projects/private/dotfiles/git/.config/git/conf/aliases.gitconfig
-   # 包含 tnr, tn, tmg, td, fixup, bdf, blg 等核心命令
+   # Location: ./git/aliases.gitconfig
+   # Contains core commands: tnr, tn, tmg, td, fixup, bdf, blg, etc.
    ```
 
-2. **Claude Code**（必需）：
-   - 版本：支持 Skills 功能的版本
-   - 配置：`~/.claude/skills/` 目录已存在
+2. **Claude Code** (Required):
+   - Version: Supports Skills functionality
+   - Configuration: `~/.claude/skills/` directory exists
 
-3. **可选依赖**：
-   - `fzf`：交互式选择（fixup、blf、pif）
-   - `ripgrep`：仓库搜索（rg、rg-all）
+3. **Optional Dependencies**:
+   - `fzf`: Interactive selection (fixup, blf, pif)
+   - `ripgrep`: Repository search (rg, rg-all)
 
 ---
 
-### 安装
+### Installation
 
-Skill 文件已部署到：
+Skill files are deployed to:
 ```
 ~/.claude/skills/git-workflow/
 ├── SKILL.md
@@ -57,200 +57,200 @@ Skill 文件已部署到：
     └── git-troubleshooting.md
 ```
 
-触发规则已添加到：
+Trigger rules added to:
 ```
 ~/.claude/skills/skill-rules.json
 ```
 
-**验证安装**：
+**Verify Installation**:
 ```bash
-# 检查文件
+# Check files
 ls ~/.claude/skills/git-workflow/
 
-# 验证触发规则
+# Verify trigger rules
 grep -A 20 "git-workflow" ~/.claude/skills/skill-rules.json
 ```
 
 ---
 
-## 使用方法
+## Usage
 
-### 基础命令映射
+### Basic Command Mapping
 
-| 用户意图 | 推荐命令 | 说明 |
+| User Intent | Recommended Command | Description |
 |---------|---------|-----|
-| "开始新功能 X" | `git tnr feature/X` | 创建并推送到远程 |
-| "本地实验" | `git tn experiment/X` | 仅本地分支 |
-| "完成功能" | `git tmg` | Merge 并删除分支 |
-| "删除分支" | `git td [branch]` | 智能同步删除 |
-| "查看差异" | `git bdf` | 与 base 分支对比 |
-| "查看日志" | `git blg` | Topic 分支 commits |
-| "准备 PR" | 检查清单 + 流程 | PR 准备指导 |
-| "修改历史" | `git fixup` | 交互式修改 commit |
-| "解决冲突" | 冲突解决工作流 | edit-unmerged 流程 |
+| "Start new feature X" | `git tnr feature/X` | Create and push to remote |
+| "Local experiment" | `git tn experiment/X` | Local branch only |
+| "Finish feature" | `git tmg` | Merge and delete branch |
+| "Delete branch" | `git td [branch]` | Smart synchronized deletion |
+| "View diff" | `git bdf` | Compare with base branch |
+| "View log" | `git blg` | Topic branch commits |
+| "Prepare PR" | Checklist + workflow | PR preparation guidance |
+| "Modify history" | `git fixup` | Interactive commit modification |
+| "Resolve conflicts" | Conflict resolution workflow | edit-unmerged workflow |
 
-### 触发示例
+### Trigger Examples
 
-**中文触发**：
+**Chinese Trigger**:
 ```
-你："开始新功能 user-authentication"
-Skill 响应：
-  ✓ 当前分支: main
-  ✓ 工作区: 干净
-  推荐命令: git tnr feature/user-authentication
-  说明: 将创建并推送分支到远程
-```
-
-**英文触发**：
-```
-你："finish this feature"
-Skill 响应：
-  ✓ 当前分支: feature/user-auth
-  ✓ 工作区: 干净
-  ✓ 3 commits 待合并
-  推荐命令: git tmg
-  说明: 将 merge --no-ff 并自动删除分支
+You: "开始新功能 user-authentication"
+Skill Response:
+  ✓ Current branch: main
+  ✓ Working directory: clean
+  Recommended command: git tnr feature/user-authentication
+  Description: Will create and push branch to remote
 ```
 
-**混合触发**：
+**English Trigger**:
 ```
-你："查看 branch diff"
-Skill 响应：
-  ✓ 当前分支: feature/user-auth
-  推荐命令: git bdf
-  说明: 显示与 main 的全部差异
+You: "finish this feature"
+Skill Response:
+  ✓ Current branch: feature/user-auth
+  ✓ Working directory: clean
+  ✓ 3 commits pending merge
+  Recommended command: git tmg
+  Description: Will merge --no-ff and auto-delete branch
+```
+
+**Mixed Trigger**:
+```
+You: "查看 branch diff"
+Skill Response:
+  ✓ Current branch: feature/user-auth
+  Recommended command: git bdf
+  Description: Shows all differences with main
 ```
 
 ---
 
-## 典型工作流
+## Typical Workflows
 
-### 场景 1：完整功能开发
+### Scenario 1: Complete Feature Development
 
 ```bash
-# 1. 创建分支
-你: "开始新功能 user-auth"
+# 1. Create branch
+You: "开始新功能 user-auth"
 → git tnr feature/user-auth
 
-# 2. 开发中保存进度
-你: "临时保存"
+# 2. Save progress during development
+You: "临时保存"
 → git save "WIP: implementing login"
 
-# 3. 查看进度
-你: "查看我改了什么"
-→ git bdf  # 差异
-→ git blg  # 日志
+# 3. Check progress
+You: "查看我改了什么"
+→ git bdf  # Diff
+→ git blg  # Log
 
-# 4. 修改历史
-你: "修改之前的 commit"
-→ git fixup  # fzf 选择
+# 4. Modify history
+You: "修改之前的 commit"
+→ git fixup  # fzf selection
 
-# 5. 准备 PR
-你: "准备 PR"
-→ 提供检查清单
-→ git blg 确认 commits
-→ git bdf --stat 统计修改
+# 5. Prepare PR
+You: "准备 PR"
+→ Provides checklist
+→ git blg confirm commits
+→ git bdf --stat statistics
 
-# 6. 合并
-你: "完成功能"
-→ git tmg  # merge 并删除分支
+# 6. Merge
+You: "完成功能"
+→ git tmg  # merge and delete branch
 ```
 
 ---
 
-### 场景 2：冲突解决
+### Scenario 2: Conflict Resolution
 
 ```bash
-# Merge 冲突
-你: "merge 冲突怎么办"
-Skill 提供：
-  1. git edit-unmerged  # 编辑冲突
-  2. 手动解决冲突
-  3. git add-unmerged   # 标记解决
-  4. git mgc            # 继续 merge
+# Merge conflict
+You: "merge 冲突怎么办"
+Skill provides:
+  1. git edit-unmerged  # Edit conflicts
+  2. Manually resolve conflicts
+  3. git add-unmerged   # Mark as resolved
+  4. git mgc            # Continue merge
 ```
 
 ---
 
-### 场景 3：误操作恢复
+### Scenario 3: Misoperation Recovery
 
 ```bash
-# 误删分支
-你: "误删分支怎么办"
-Skill 提供：
+# Accidentally deleted branch
+You: "误删分支怎么办"
+Skill provides:
   1. git reflog | grep "branch-name"
-  2. 找到分支最后的 commit
+  2. Find the last commit of the branch
   3. git checkout -b recovered <hash>
 ```
 
 ---
 
-## 架构设计
+## Architecture Design
 
-### 职责边界
+### Responsibility Boundaries
 
 ```
-用户自然语言
-    ↓ (意图识别)
+User Natural Language
+    ↓ (Intent Recognition)
 Git-Workflow Skill
-    ↓ (状态检查 + 命令生成)
+    ↓ (State Check + Command Generation)
 Production Git Aliases
-    ↓ (执行 + 内置安全机制)
-Git 操作
+    ↓ (Execution + Built-in Safety Mechanisms)
+Git Operations
 ```
 
-**Skill 负责**：
-- ✅ 意图理解和命令映射
-- ✅ 执行前状态检查
-- ✅ 工作流指导
-- ✅ 问题诊断
+**Skill Responsibilities**:
+- ✅ Intent understanding and command mapping
+- ✅ Pre-execution state checks
+- ✅ Workflow guidance
+- ✅ Problem diagnosis
 
-**Aliases 负责**：
-- ✅ 实际 Git 操作
-- ✅ 运行时安全检查（自动 stash、同步、保护）
-- ✅ 错误处理
+**Aliases Responsibilities**:
+- ✅ Actual Git operations
+- ✅ Runtime safety checks (auto stash, sync, protection)
+- ✅ Error handling
 
-**不做的事**：
-- ❌ 不重写 aliases 逻辑（YAGNI）
-- ❌ 不修改 dotfiles 配置
-- ❌ 不添加新的 shell 脚本
+**What We Don't Do**:
+- ❌ Don't rewrite aliases logic (YAGNI)
+- ❌ Don't modify dotfiles configuration
+- ❌ Don't add new shell scripts
 
 ---
 
-### 三阶段安全检查
+### Three-Stage Safety Checks
 
 ```
-执行前 (Pre-check)
-├─ 工作区状态: git working-dir-dirty
-├─ 当前分支: git current-branch
-├─ 远程同步: git ahead-count / behind-count
-└─ 分支存在: git remote-branch
+Pre-execution (Pre-check)
+├─ Working directory state: git working-dir-dirty
+├─ Current branch: git current-branch
+├─ Remote sync: git ahead-count / behind-count
+└─ Branch existence: git remote-branch
 
-执行中 (Runtime)
-└─ Aliases 内置安全机制
+During execution (Runtime)
+└─ Aliases built-in safety mechanisms
 
-执行后 (Post-check)
-├─ 结果验证: git status / current-branch
-└─ 预期确认: 分支切换/删除/merge commit
+Post-execution (Post-check)
+├─ Result verification: git status / current-branch
+└─ Expectation confirmation: branch switch/delete/merge commit
 ```
 
 ---
 
-## 触发规则
+## Trigger Rules
 
-### Keywords（关键词）
+### Keywords
 
-**中文**：
+**Chinese**:
 - topic分支、功能分支、合并分支、删除分支
 - 修改提交、分支差异、准备PR、git工作流
 - tnr、tmg
 
-**英文**：
-- topic branch、feature branch、git workflow
-- merge branch、delete branch、fixup
-- branch diff、branch log
+**English**:
+- topic branch, feature branch, git workflow
+- merge branch, delete branch, fixup
+- branch diff, branch log
 
-### Intent Patterns（意图模式）
+### Intent Patterns
 
 ```regex
 (start|create|new|开始|创建).*(feature|topic|branch|功能|分支)
@@ -265,201 +265,204 @@ git.*(workflow|工作流)
 
 ---
 
-## 统计数据
+## Statistics
 
-| 指标 | 数值 |
+| Metric | Value |
 |-----|------|
-| 文档数量 | 6 个 |
-| 总代码行数 | 3620 行 |
-| 主文档 | 366 行 |
-| 核心工作流 | 724 行 |
-| 安全机制 | 227 行 |
-| PR 准备 | 740 行 |
-| 高级操作 | 766 行 |
-| 故障排查 | 797 行 |
+| Document Count | 6 |
+| Total Lines of Code | 3620 |
+| Main Document | 366 lines |
+| Core Workflow | 724 lines |
+| Safety Mechanisms | 227 lines |
+| PR Preparation | 740 lines |
+| Advanced Operations | 766 lines |
+| Troubleshooting | 797 lines |
 
 ---
 
-## 开发历程
+## Development History
 
-### Phase 1: MVP（已完成）
+### Phase 1: MVP (Completed)
 
-**目标**：验证核心价值 - 意图识别 + 安全检查
+**Goal**: Validate core value - intent recognition + safety checks
 
-**交付物**：
+**Deliverables**:
 - ✅ SKILL.md
 - ✅ git-topic-workflow.md
 - ✅ git-safety-mechanisms.md
-- ✅ skill-rules.json 触发规则
+- ✅ skill-rules.json trigger rules
 
-**验证标准**：
-- ✅ 能识别 5 种用户意图
-- ✅ 状态检查覆盖 4 个维度
-- ✅ 生成正确且安全的命令
+**Validation Criteria**:
+- ✅ Can recognize 5 types of user intents
+- ✅ State checks cover 4 dimensions
+- ✅ Generate correct and safe commands
 
 ---
 
-### Phase 2: 增强（已完成）
+### Phase 2: Enhancement (Completed)
 
-**目标**：添加 PR 准备、历史修改、恢复指导
+**Goal**: Add PR preparation, history modification, recovery guidance
 
-**交付物**：
+**Deliverables**:
 - ✅ git-pr-preparation.md
 - ✅ git-advanced-operations.md
 - ✅ git-troubleshooting.md
 
-**验证标准**：
-- ✅ PR 准备检查清单完整
-- ✅ Fixup/amend 引导清晰
-- ✅ 冲突解决工作流可操作
-- ✅ 恢复方案覆盖常见误操作
+**Validation Criteria**:
+- ✅ PR preparation checklist complete
+- ✅ Fixup/amend guidance clear
+- ✅ Conflict resolution workflow actionable
+- ✅ Recovery solutions cover common misoperations
 
 ---
 
-### Phase 3: 优化（可选）
+### Phase 3: Optimization (Optional)
 
-**目标**：根据实际使用反馈改进
+**Goal**: Improve based on actual usage feedback
 
-**计划**：
-- 调整触发规则（基于效果）
-- 添加更多常见场景
-- 完善错误提示
-- 工作流可视化（如有价值）
+**Plan**:
+- Adjust trigger rules (based on effectiveness)
+- Add more common scenarios
+- Improve error messages
+- Workflow visualization (if valuable)
 
 ---
 
-## 贡献指南
+## Contributing Guidelines
 
-### 文件结构
+### File Structure
 
 ```
 git-workflow-skill/
-├── README.md                    # 本文件
+├── README.md                    # This file
 ├── docs/
-│   └── testing.md              # 测试验证文档
+│   └── testing.md              # Test verification documentation
 └── examples/
-    └── scenarios.md            # 使用场景演示
+    └── scenarios.md            # Usage scenario demonstrations
 ```
 
-### 修改 Skill
+### Modifying the Skill
 
-1. **修改主文档**：
+1. **Modify Main Document**:
    ```bash
    vim ~/.claude/skills/git-workflow/SKILL.md
    ```
 
-2. **修改参考文档**：
+2. **Modify Reference Documents**:
    ```bash
    vim ~/.claude/skills/git-workflow/references/<document>.md
    ```
 
-3. **修改触发规则**：
+3. **Modify Trigger Rules**:
    ```bash
    vim ~/.claude/skills/skill-rules.json
-   # 修改 git-workflow 条目的 keywords 或 intentPatterns
+   # Modify keywords or intentPatterns in git-workflow entry
    ```
 
-4. **验证修改**：
+4. **Verify Modifications**:
    ```bash
-   # JSON 格式检查
+   # JSON format check
    python3 -m json.tool ~/.claude/skills/skill-rules.json > /dev/null
 
-   # 测试触发
-   # 在 Claude Code 中测试新的关键词或意图
+   # Test trigger
+   # Test new keywords or intents in Claude Code
    ```
 
 ---
 
-## 故障排查
+## Troubleshooting
 
-### Skill 未触发
+### Skill Not Triggering
 
-**可能原因**：
-1. 关键词不匹配
-2. 意图模式不匹配
-3. skill-rules.json 格式错误
+**Possible Causes**:
+1. Keywords don't match
+2. Intent patterns don't match
+3. skill-rules.json format error
 
-**排查步骤**：
+**Troubleshooting Steps**:
 ```bash
-# 1. 检查 JSON 格式
+# 1. Check JSON format
 python3 -m json.tool ~/.claude/skills/skill-rules.json
 
-# 2. 查看触发规则
+# 2. View trigger rules
 grep -A 30 "git-workflow" ~/.claude/skills/skill-rules.json
 
-# 3. 尝试精确关键词
-# 输入: "tnr" 或 "git workflow"
+# 3. Try exact keywords
+# Input: "tnr" or "git workflow"
 ```
 
 ---
 
-### 命令不存在
+### Command Not Found
 
-**可能原因**：
-Git aliases 未配置或路径不正确
+**Possible Causes**:
+Git aliases not configured or incorrect path
 
-**排查步骤**：
+**Troubleshooting Steps**:
 ```bash
-# 1. 检查 aliases 是否加载
+# 1. Check if aliases are loaded
 git config --get-regexp alias.tnr
 git config --get-regexp alias.tmg
 
-# 2. 检查 aliases 文件路径
-ls ~/projects/private/dotfiles/git/.config/git/conf/aliases.gitconfig
+# 2. Check aliases file path
+ls ./git/aliases.gitconfig
 
-# 3. 确认 Git 配置引用
+# 3. Confirm Git config reference
 git config --get include.path
 ```
 
 ---
 
-### 状态检查失败
+### State Check Failure
 
-**可能原因**：
-辅助命令（working-dir-dirty、current-branch 等）不存在
+**Possible Causes**:
+Helper commands (working-dir-dirty, current-branch, etc.) don't exist
 
-**排查步骤**：
+**Troubleshooting Steps**:
 ```bash
-# 测试辅助命令
+# Test helper commands
 git working-dir-dirty
 git current-branch
 git base-branch
 
-# 如果失败，检查 aliases 配置
+# If failed, check aliases configuration
 git config --get-regexp alias | grep "working-dir-dirty"
 ```
 
 ---
 
-## 许可证
+## License
 
 MIT License
 
 ---
 
-## 参考资料
+## References
 
-### 相关文档
+### Related Documentation
 
-- Git Aliases 配置：`~/projects/private/dotfiles/git/.config/git/conf/aliases.gitconfig`
-- Git Aliases 参考手册：`~/projects/private/dotfiles/git/.config/git/conf/Git-Aliases-参考手册.md`
-- Claude Code 文档：https://docs.anthropic.com/claude-code
+- Git Aliases:
+  Local: `git/aliases.gitconfig`
+  Github: https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/aliases.gitconfig
+- Git Aliases Reference Manual:
+  Local: `git/Git-Aliases-Reference-Manual.md`
+  Github: https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/Git-Aliases-Reference-Manual.md
 
-### 外部资源
+### External Resources
 
-- Feature Branch Workflow：https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow
-- Git Flight Rules：https://github.com/k88hudson/git-flight-rules
-- Oh Shit, Git!：https://ohshitgit.com/
-
----
-
-## 联系方式
-
-如有问题或建议，请：
-1. 查阅本文档的"故障排查"章节
-2. 参考 Skill 文档：`~/.claude/skills/git-workflow/SKILL.md`
-3. 查看 Git Aliases 参考手册
+- Feature Branch Workflow: https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow
+- Git Flight Rules: https://github.com/k88hudson/git-flight-rules
+- Oh Shit, Git!: https://ohshitgit.com/
 
 ---
 
-**祝开发愉快！** 🚀
+## Contact
+
+If you have questions or suggestions:
+1. Refer to the "Troubleshooting" section of this document
+2. Consult the Skill documentation: `~/.claude/skills/git-workflow/SKILL.md`
+3. Check Git Aliases Reference Manual: `git/Git-Aliases-Reference-Manual.md`
+
+---
+
+**Happy Coding!** 🚀
