@@ -15,11 +15,11 @@ Intelligent Git topic workflow assistant based on production-grade aliases, prov
 
 | Module | Functionality | Documentation |
 |-----|------|------|
-| **Core Workflow** | tnr/tn/tmg/td branch lifecycle management | [git-topic-workflow.md](~/.claude/skills/git-workflow/references/git-topic-workflow.md) |
-| **Safety Mechanisms** | Three-stage checks, safety boundaries, error handling | [git-safety-mechanisms.md](~/.claude/skills/git-workflow/references/git-safety-mechanisms.md) |
-| **PR Preparation** | Checklists, quality assurance, PR description templates | [git-pr-preparation.md](~/.claude/skills/git-workflow/references/git-pr-preparation.md) |
-| **Advanced Operations** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](~/.claude/skills/git-workflow/references/git-advanced-operations.md) |
-| **Troubleshooting** | Conflict resolution, misoperation recovery, emergency rescue | [git-troubleshooting.md](~/.claude/skills/git-workflow/references/git-troubleshooting.md) |
+| **Core Workflow** | tnr/tn/tmg/td branch lifecycle management | [git-topic-workflow.md](skills/git-workflow/references/git-topic-workflow.md) |
+| **Safety Mechanisms** | Three-stage checks, safety boundaries, error handling | [git-safety-mechanisms.md](skills/git-workflow/references/git-safety-mechanisms.md) |
+| **PR Preparation** | Checklists, quality assurance, PR description templates | [git-pr-preparation.md](skills/git-workflow/references/git-pr-preparation.md) |
+| **Advanced Operations** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](skills/git-workflow/references/git-advanced-operations.md) |
+| **Troubleshooting** | Conflict resolution, misoperation recovery, emergency rescue | [git-troubleshooting.md](skills/git-workflow/references/git-troubleshooting.md) |
 
 ---
 
