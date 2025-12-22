@@ -278,8 +278,8 @@
     ca = commit -a
     cam = commit -a --message
 
-    cm = safe-commit-amend-no-edit
-    cme = safe-commit-amend
+    cmd = safe-commit-amend-no-edit
+    cmde = safe-commit-amend
 
     # Apply all new modifications and deleted files to the last commit
     cmu = "!git add --update && git safe-commit-amend-no-edit"

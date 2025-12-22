@@ -360,7 +360,9 @@ Skill 验证：确认已在 base 分支，topic 分支已删除
 
 ## Resources
 
-- Git Aliases 配置：`/home/alecshan/projects/private/dotfiles/git/.config/git/conf/aliases.gitconfig`
-- Git Aliases 参考手册：`/home/alecshan/projects/private/dotfiles/git/.config/git/conf/Git-Aliases-参考手册.md`
-- Git 官方文档：https://git-scm.com/doc
-- Git 工作流指南：https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow
+- Git Aliases:
+  Local: `git/aliases.gitconfig`
+  Github: https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/aliases.gitconfig
+- Git Aliases Reference Manual:
+  Local: `git/Git-Aliases-Reference-Manual.md`
+  Github: https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/Git-Aliases-Reference-Manual.md
