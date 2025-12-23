@@ -24,7 +24,10 @@ git-workflow-skill/
 │   │   │   ├── git-pr-preparation.md
 │   │   │   ├── git-advanced-operations.md
 │   │   │   └── git-troubleshooting.md
-│   │   ├── docs/testing.md
+│   │   ├── docs/                  # 开发文档（不部署）
+│   │   │   ├── README.md          # 英文开发文档
+│   │   │   ├── README_zh-CN.md    # 中文开发文档
+│   │   │   └── testing.md
 │   │   └── examples/scenarios.md
 │   └── gh-pr-create/              # GitHub PR 创建 Skill
 │       ├── SKILL.md               # PR 创建 Skill 定义
@@ -32,9 +35,11 @@ git-workflow-skill/
 │       │   ├── pr-templates.md
 │       │   ├── gh-integration.md
 │       │   └── base-branch-detection.md
-│       ├── docs/testing.md
-│       ├── examples/scenarios.md
-│       └── README.md
+│       ├── docs/                  # 开发文档（不部署）
+│       │   ├── README.md          # 英文开发文档
+│       │   ├── README_zh-CN.md    # 中文开发文档
+│       │   └── testing.md
+│       └── examples/scenarios.md
 ├── git/                           # Git Aliases 配置文件
 │   ├── aliases.gitconfig          # 生产级 Git aliases
 │   └── Git-Aliases-Reference-Manual.md
@@ -101,8 +106,8 @@ cp skills/git-workflow/SKILL.md ~/.claude/skills/git-workflow/
 # 同步参考文档
 cp -r skills/git-workflow/references/*.md ~/.claude/skills/git-workflow/references/
 
-# 同步所有文件（批量操作）
-rsync -av --delete skills/git-workflow/ ~/.claude/skills/git-workflow/
+# 同步所有文件（批量操作，排除开发文档）
+rsync -av --delete --exclude 'docs/' --exclude 'examples/' skills/git-workflow/ ~/.claude/skills/git-workflow/
 
 # 验证同步结果
 diff skills/git-workflow/SKILL.md ~/.claude/skills/git-workflow/SKILL.md
@@ -113,8 +118,8 @@ diff skills/git-workflow/SKILL.md ~/.claude/skills/git-workflow/SKILL.md
 修改 `skills/gh-pr-create/` 下的文件后：
 
 ```bash
-# 同步所有 gh-pr-create 文件
-rsync -av skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
+# 同步所有 gh-pr-create 文件（排除开发文档）
+rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
 
 # 验证同步结果
 diff skills/gh-pr-create/SKILL.md ~/.claude/skills/gh-pr-create/SKILL.md
@@ -128,11 +133,11 @@ gh auth status
 修改后立即验证效果：
 
 ```bash
-# 1. 同步 git-workflow 文档
-rsync -av skills/git-workflow/ ~/.claude/skills/git-workflow/
+# 1. 同步 git-workflow 文档（排除开发文档）
+rsync -av --exclude 'docs/' --exclude 'examples/' skills/git-workflow/ ~/.claude/skills/git-workflow/
 
-# 2. 同步 gh-pr-create 文档
-rsync -av skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
+# 2. 同步 gh-pr-create 文档（排除开发文档）
+rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
 
 # 3. 在 Claude Code 中测试触发（手动测试）
 # Git workflow: "开始新功能 test" 或 "git workflow help"
@@ -280,7 +285,7 @@ Skill 依赖的生产级 Git aliases 位于：
 
 1. 编辑 `skills/gh-pr-create/SKILL.md`
 2. 重点关注：PR 描述模板、base branch 检测逻辑、安全检查清单
-3. 同步到部署位置：`rsync -av skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/`
+3. 同步到部署位置：`rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/`
 4. 验证：
    - `gh auth status` 检查 gh CLI 认证
    - 创建测试分支并触发 "创建 PR"

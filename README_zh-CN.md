@@ -1,6 +1,9 @@
-# Git-Workflow Skill for Claude Code
+# Git-Workflow Skills for Claude Code
 
-智能 Git topic 工作流助手，基于生产级 aliases 提供上下文感知的分支管理、安全检查和 PR 准备。
+两个智能 Git 工作流助手，简化你的开发流程：
+
+- **git-workflow**：基于 topic 的分支管理，提供安全检查和工作流指导
+- **gh-pr-create**：自动化 GitHub Pull Request 创建，智能变更分析
 
 ## 特性
 
@@ -11,15 +14,23 @@
 - **上下文感知**：根据当前分支状态推荐合适的操作
 - **学习辅助**：提供工作流指导和问题诊断
 
-### 📦 功能模块
+### 📦 Skills 概览
 
-| 模块 | 功能 | 文档 |
-|-----|------|------|
-| **核心工作流** | tnr/tn/tmg/td 分支生命周期管理 | [git-topic-workflow.md](skills/git-workflow/references/git-topic-workflow.md) |
-| **安全机制** | 三阶段检查、安全边界、错误处理 | [git-safety-mechanisms.md](skills/git-workflow/references/git-safety-mechanisms.md) |
-| **PR 准备** | 检查清单、质量保证、PR 描述模板 | [git-pr-preparation.md](skills/git-workflow/references/git-pr-preparation.md) |
-| **高级操作** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](skills/git-workflow/references/git-advanced-operations.md) |
-| **故障排查** | 冲突解决、误操作恢复、紧急救援 | [git-troubleshooting.md](skills/git-workflow/references/git-troubleshooting.md) |
+#### [git-workflow](skills/git-workflow/docs/README_zh-CN.md)
+
+基于 topic 的分支管理，提供安全检查和工作流指导。
+
+**核心功能**：tnr/tn/tmg/td 生命周期 | 三阶段安全检查 | PR 准备 | 高级操作（fixup/amend）| 冲突解决
+
+**[→ 完整文档](skills/git-workflow/docs/README_zh-CN.md)**
+
+#### [gh-pr-create](skills/gh-pr-create/docs/README_zh-CN.md)
+
+自动化 GitHub Pull Request 创建，智能变更分析。
+
+**核心功能**：自动生成 PR 描述 | 智能 base 分支检测 | gh CLI 集成 | 结构化模板
+
+**[→ 完整文档](skills/gh-pr-create/docs/README_zh-CN.md)**
 
 ---
 
@@ -27,17 +38,27 @@
 
 ### 前置要求
 
-1. **Git Aliases 配置**（必需）：
+1. **Git Aliases 配置**（git-workflow 必需）：
    ```bash
    # 位置: ./git/aliases.gitconfig
    # 包含 tnr, tn, tmg, td, fixup, bdf, blg 等核心命令
    ```
 
-2. **Claude Code**（必需）：
+2. **GitHub CLI**（gh-pr-create 必需）：
+   ```bash
+   # 安装 gh CLI
+   # macOS: brew install gh
+   # Linux: 见 https://github.com/cli/cli#installation
+
+   # 认证
+   gh auth login
+   ```
+
+3. **Claude Code**（必需）：
    - 版本：支持 Skills 功能的版本
    - 配置：`~/.claude/skills/` 目录已存在
 
-3. **可选依赖**：
+4. **可选依赖**：
    - `fzf`：交互式选择（fixup、blf、pif）
    - `ripgrep`：仓库搜索（rg、rg-all）
 
@@ -45,7 +66,7 @@
 
 ### 安装
 
-Skill 文件已部署到：
+Skills 部署位置：
 ```
 ~/.claude/skills/git-workflow/
 ├── SKILL.md
@@ -55,228 +76,147 @@ Skill 文件已部署到：
     ├── git-pr-preparation.md
     ├── git-advanced-operations.md
     └── git-troubleshooting.md
+
+~/.claude/skills/gh-pr-create/
+├── SKILL.md
+└── references/
+    ├── pr-templates.md
+    ├── gh-integration.md
+    └── base-branch-detection.md
 ```
 
-触发规则已添加到：
+触发规则添加到：
 ```
 ~/.claude/skills/skill-rules.json
 ```
 
 **验证安装**：
 ```bash
-# 检查文件
+# 检查 git-workflow 文件
 ls ~/.claude/skills/git-workflow/
+
+# 检查 gh-pr-create 文件
+ls ~/.claude/skills/gh-pr-create/
 
 # 验证触发规则
 grep -A 20 "git-workflow" ~/.claude/skills/skill-rules.json
+grep -A 20 "gh-pr-create" ~/.claude/skills/skill-rules.json
+
+# 验证 gh CLI 认证（gh-pr-create 使用）
+gh auth status
 ```
 
 ---
 
 ## 使用方法
 
-### 基础命令映射
+### 快速示例
 
-| 用户意图 | 推荐命令 | 说明 |
-|---------|---------|-----|
-| "开始新功能 X" | `git tnr feature/X` | 创建并推送到远程 |
-| "本地实验" | `git tn experiment/X` | 仅本地分支 |
-| "完成功能" | `git tmg` | Merge 并删除分支 |
-| "删除分支" | `git td [branch]` | 智能同步删除 |
-| "查看差异" | `git bdf` | 与 base 分支对比 |
-| "查看日志" | `git blg` | Topic 分支 commits |
-| "准备 PR" | 检查清单 + 流程 | PR 准备指导 |
-| "修改历史" | `git fixup` | 交互式修改 commit |
-| "解决冲突" | 冲突解决工作流 | edit-unmerged 流程 |
-
-### 触发示例
-
-**中文触发**：
+**git-workflow**：分支管理的自然语言命令
 ```
-你："开始新功能 user-authentication"
-Skill 响应：
-  ✓ 当前分支: main
-  ✓ 工作区: 干净
-  推荐命令: git tnr feature/user-authentication
-  说明: 将创建并推送分支到远程
+"开始新功能 user-auth" → 创建并推送 feature 分支
+"完成功能" → 合并并清理分支
+"查看 branch diff" → 显示与 base 分支的差异
 ```
 
-**英文触发**：
+**gh-pr-create**：自动化 PR 创建
 ```
-你："finish this feature"
-Skill 响应：
-  ✓ 当前分支: feature/user-auth
-  ✓ 工作区: 干净
-  ✓ 3 commits 待合并
-  推荐命令: git tmg
-  说明: 将 merge --no-ff 并自动删除分支
+"创建 PR" → 分析 commits，生成描述，创建 PR
+"create pull request" → 同上，必要时自动推送
 ```
 
-**混合触发**：
-```
-你："查看 branch diff"
-Skill 响应：
-  ✓ 当前分支: feature/user-auth
-  推荐命令: git bdf
-  说明: 显示与 main 的全部差异
-```
+**[→ git-workflow 完整使用指南](skills/git-workflow/docs/README_zh-CN.md)**
+**[→ gh-pr-create 完整使用指南](skills/gh-pr-create/docs/README_zh-CN.md)**
 
 ---
 
 ## 典型工作流
 
-### 场景 1：完整功能开发
+### 完整功能开发（端到端）
+
+结合两个 skills 完成完整开发周期：
 
 ```bash
-# 1. 创建分支
+# 1. 创建分支（git-workflow）
 你: "开始新功能 user-auth"
 → git tnr feature/user-auth
 
-# 2. 开发中保存进度
+# 2. 开发中保存进度（git-workflow）
 你: "临时保存"
 → git save "WIP: implementing login"
 
-# 3. 查看进度
+# 3. 查看进度（git-workflow）
 你: "查看我改了什么"
 → git bdf  # 差异
 → git blg  # 日志
 
-# 4. 修改历史
+# 4. 修改历史（git-workflow）
 你: "修改之前的 commit"
 → git fixup  # fzf 选择
 
-# 5. 准备 PR
-你: "准备 PR"
-→ 提供检查清单
-→ git blg 确认 commits
-→ git bdf --stat 统计修改
+# 5. 创建 PR（gh-pr-create）
+你: "创建 PR"
+→ 分析所有 commits 和文件变更
+→ 生成结构化 PR 描述（Summary + Test Plan）
+→ 必要时推送分支
+→ 创建 PR: https://github.com/user/repo/pull/123
 
-# 6. 合并
+# 6. PR 在 GitHub 合并后，清理（git-workflow）
 你: "完成功能"
 → git tmg  # merge 并删除分支
 ```
 
----
-
-### 场景 2：冲突解决
-
-```bash
-# Merge 冲突
-你: "merge 冲突怎么办"
-Skill 提供：
-  1. git edit-unmerged  # 编辑冲突
-  2. 手动解决冲突
-  3. git add-unmerged   # 标记解决
-  4. git mgc            # 继续 merge
-```
+**更多场景**：
+- **[git-workflow 场景](skills/git-workflow/docs/README_zh-CN.md#典型工作流)**：冲突解决、误操作恢复
+- **[gh-pr-create 场景](skills/gh-pr-create/docs/README_zh-CN.md#支持的场景)**：PR 模板、base 分支检测
 
 ---
 
-### 场景 3：误操作恢复
+## 架构
 
-```bash
-# 误删分支
-你: "误删分支怎么办"
-Skill 提供：
-  1. git reflog | grep "branch-name"
-  2. 找到分支最后的 commit
-  3. git checkout -b recovered <hash>
-```
+### 设计原则
 
----
+**关注点分离**：
+- **Skills 层**：意图识别、安全检查、指导
+- **Aliases 层**：Git 操作、运行时安全、错误处理
 
-## 架构设计
+**YAGNI 方法**：
+- 不重写 aliases 逻辑
+- 专注智能包装和上下文感知
 
-### 职责边界
-
-```
-用户自然语言
-    ↓ (意图识别)
-Git-Workflow Skill
-    ↓ (状态检查 + 命令生成)
-Production Git Aliases
-    ↓ (执行 + 内置安全机制)
-Git 操作
-```
-
-**Skill 负责**：
-- ✅ 意图理解和命令映射
-- ✅ 执行前状态检查
-- ✅ 工作流指导
-- ✅ 问题诊断
-
-**Aliases 负责**：
-- ✅ 实际 Git 操作
-- ✅ 运行时安全检查（自动 stash、同步、保护）
-- ✅ 错误处理
-
-**不做的事**：
-- ❌ 不重写 aliases 逻辑（YAGNI）
-- ❌ 不修改 dotfiles 配置
-- ❌ 不添加新的 shell 脚本
-
----
-
-### 三阶段安全检查
-
-```
-执行前 (Pre-check)
-├─ 工作区状态: git working-dir-dirty
-├─ 当前分支: git current-branch
-├─ 远程同步: git ahead-count / behind-count
-└─ 分支存在: git remote-branch
-
-执行中 (Runtime)
-└─ Aliases 内置安全机制
-
-执行后 (Post-check)
-├─ 结果验证: git status / current-branch
-└─ 预期确认: 分支切换/删除/merge commit
-```
+**[→ 完整架构文档](skills/git-workflow/docs/README_zh-CN.md#架构设计)**
 
 ---
 
 ## 触发规则
 
-### Keywords（关键词）
+触发规则定义在 `~/.claude/skills/skill-rules.json`。
 
-**中文**：
-- topic分支、功能分支、合并分支、删除分支
-- 修改提交、分支差异、准备PR、git工作流
-- tnr、tmg
+### git-workflow
 
-**英文**：
-- topic branch、feature branch、git workflow
-- merge branch、delete branch、fixup
-- branch diff、branch log
+**示例关键词**："开始新功能"、"完成功能"、"git workflow"、"branch diff"、"fixup"
 
-### Intent Patterns（意图模式）
+**[→ 完整触发规则](skills/git-workflow/docs/README_zh-CN.md#触发规则)**
 
-```regex
-(start|create|new|开始|创建).*(feature|topic|branch|功能|分支)
-(merge|finish|complete|合并|完成).*(branch|feature|topic|分支|功能)
-(delete|remove|clean|删除|清理).*(branch|topic|分支)
-(show|view|diff|log|查看|显示).*(branch|changes|差异|修改)
-(prepare|ready|check|准备|检查).*(pr|pull request)
-\bfixup\b|修改.*提交|amend
-(conflict|resolve|冲突|解决)
-git.*(workflow|工作流)
-```
+### gh-pr-create
+
+**示例关键词**："创建 PR"、"create pr"、"open pull request"
+
+**[→ 完整触发规则](skills/gh-pr-create/docs/README_zh-CN.md#触发规则)**
 
 ---
 
-## 统计数据
+## 项目统计
 
 | 指标 | 数值 |
 |-----|------|
-| 文档数量 | 6 个 |
-| 总代码行数 | 3620 行 |
-| 主文档 | 366 行 |
-| 核心工作流 | 724 行 |
-| 安全机制 | 227 行 |
-| PR 准备 | 740 行 |
-| 高级操作 | 766 行 |
-| 故障排查 | 797 行 |
+| Skills 总数 | 2 个 |
+| 文档总数 | 10 个 |
+| 总行数 | 6029 行 |
+
+**详细数据**：
+- **[git-workflow](skills/git-workflow/docs/README_zh-CN.md#统计数据)**：6 个文档，3620 行
+- **[gh-pr-create](skills/gh-pr-create/docs/README_zh-CN.md#统计数据)**：4 个文档，2409 行
 
 ---
 
@@ -334,100 +274,118 @@ git.*(workflow|工作流)
 
 ```
 git-workflow-skill/
-├── README.md                    # 本文件
-├── docs/
-│   └── testing.md              # 测试验证文档
-└── examples/
-    └── scenarios.md            # 使用场景演示
+├── README.md                    # 英文版本
+├── README_zh-CN.md             # 本文件（中文版）
+├── skills/
+│   ├── git-workflow/           # Git 工作流 skill
+│   │   ├── SKILL.md
+│   │   ├── references/
+│   │   ├── docs/
+│   │   │   ├── README.md       # 开发文档（英文）
+│   │   │   ├── README_zh-CN.md # 开发文档（中文）
+│   │   │   └── testing.md
+│   │   └── examples/scenarios.md
+│   └── gh-pr-create/           # GitHub PR 创建 skill
+│       ├── SKILL.md
+│       ├── references/
+│       ├── docs/
+│       │   ├── README.md       # 开发文档（英文）
+│       │   ├── README_zh-CN.md # 开发文档（中文）
+│       │   └── testing.md
+│       └── examples/scenarios.md
+└── git/                         # Git aliases 配置
+    ├── aliases.gitconfig
+    └── Git-Aliases-Reference-Manual.md
 ```
 
-### 修改 Skill
+### 修改 Skills
+
+**git-workflow Skill**：
 
 1. **修改主文档**：
    ```bash
-   vim ~/.claude/skills/git-workflow/SKILL.md
+   vim skills/git-workflow/SKILL.md
+   rsync -av --exclude 'docs/' --exclude 'examples/' skills/git-workflow/ ~/.claude/skills/git-workflow/
    ```
 
 2. **修改参考文档**：
    ```bash
-   vim ~/.claude/skills/git-workflow/references/<document>.md
+   vim skills/git-workflow/references/<document>.md
+   rsync -av --exclude 'docs/' --exclude 'examples/' skills/git-workflow/ ~/.claude/skills/git-workflow/
    ```
 
-3. **修改触发规则**：
+**gh-pr-create Skill**：
+
+1. **修改主文档**：
+   ```bash
+   vim skills/gh-pr-create/SKILL.md
+   rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
+   ```
+
+2. **修改参考文档**：
+   ```bash
+   vim skills/gh-pr-create/references/<document>.md
+   rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
+   ```
+
+3. **验证 gh CLI**：
+   ```bash
+   gh auth status
+   ```
+
+**触发规则**：
+
+1. **修改触发规则**：
    ```bash
    vim ~/.claude/skills/skill-rules.json
-   # 修改 git-workflow 条目的 keywords 或 intentPatterns
+   # 修改 git-workflow 或 gh-pr-create 条目的 keywords 或 intentPatterns
    ```
 
-4. **验证修改**：
+2. **验证修改**：
    ```bash
    # JSON 格式检查
    python3 -m json.tool ~/.claude/skills/skill-rules.json > /dev/null
 
-   # 测试触发
-   # 在 Claude Code 中测试新的关键词或意图
+   # 在 Claude Code 中测试触发
    ```
 
 ---
 
 ## 故障排查
 
-### Skill 未触发
+### 常见问题
 
-**可能原因**：
-1. 关键词不匹配
-2. 意图模式不匹配
-3. skill-rules.json 格式错误
-
-**排查步骤**：
+**Skills 未触发**：
 ```bash
-# 1. 检查 JSON 格式
-python3 -m json.tool ~/.claude/skills/skill-rules.json
+# 验证触发规则
+grep -E "git-workflow|gh-pr-create" ~/.claude/skills/skill-rules.json
 
-# 2. 查看触发规则
-grep -A 30 "git-workflow" ~/.claude/skills/skill-rules.json
-
-# 3. 尝试精确关键词
-# 输入: "tnr" 或 "git workflow"
+# 验证 skill 文件存在
+ls ~/.claude/skills/git-workflow/
+ls ~/.claude/skills/gh-pr-create/
 ```
 
----
-
-### 命令不存在
-
-**可能原因**：
-Git aliases 未配置或路径不正确
-
-**排查步骤**：
+**Git Aliases 未找到**：
 ```bash
-# 1. 检查 aliases 是否加载
+# 检查 aliases 是否加载
 git config --get-regexp alias.tnr
-git config --get-regexp alias.tmg
 
-# 2. 检查 aliases 文件路径
+# 验证 aliases 文件
 ls ./git/aliases.gitconfig
-
-# 3. 确认 Git 配置引用
-git config --get include.path
 ```
 
----
-
-### 状态检查失败
-
-**可能原因**：
-辅助命令（working-dir-dirty、current-branch 等）不存在
-
-**排查步骤**：
+**gh CLI 问题**：
 ```bash
-# 测试辅助命令
-git working-dir-dirty
-git current-branch
-git base-branch
+# 认证 GitHub
+gh auth login
 
-# 如果失败，检查 aliases 配置
-git config --get-regexp alias | grep "working-dir-dirty"
+# 验证认证
+gh auth status
 ```
+
+**详细故障排查**：
+- **[git-workflow 故障排查](skills/git-workflow/docs/README_zh-CN.md#故障排查)**：触发问题、命令错误、状态检查
+- **[gh-pr-create 故障排查](skills/gh-pr-create/docs/README_zh-CN.md#故障排查)**：认证、base 分支检测、PR 创建
 
 ---
 

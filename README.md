@@ -1,6 +1,9 @@
-# Git-Workflow Skill for Claude Code
+# Git-Workflow Skills for Claude Code
 
-Intelligent Git topic workflow assistant based on production-grade aliases, providing context-aware branch management, safety checks, and PR preparation.
+Two intelligent Git workflow assistants that streamline your development process:
+
+- **git-workflow**: Topic-based branch management with safety checks and workflow guidance
+- **gh-pr-create**: Automated GitHub Pull Request creation with smart change analysis
 
 ## Features
 
@@ -11,15 +14,23 @@ Intelligent Git topic workflow assistant based on production-grade aliases, prov
 - **Context Awareness**: Recommends appropriate actions based on current branch state
 - **Learning Assistance**: Provides workflow guidance and problem diagnosis
 
-### 📦 Feature Modules
+### 📦 Skills Overview
 
-| Module | Functionality | Documentation |
-|-----|------|------|
-| **Core Workflow** | tnr/tn/tmg/td branch lifecycle management | [git-topic-workflow.md](skills/git-workflow/references/git-topic-workflow.md) |
-| **Safety Mechanisms** | Three-stage checks, safety boundaries, error handling | [git-safety-mechanisms.md](skills/git-workflow/references/git-safety-mechanisms.md) |
-| **PR Preparation** | Checklists, quality assurance, PR description templates | [git-pr-preparation.md](skills/git-workflow/references/git-pr-preparation.md) |
-| **Advanced Operations** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](skills/git-workflow/references/git-advanced-operations.md) |
-| **Troubleshooting** | Conflict resolution, misoperation recovery, emergency rescue | [git-troubleshooting.md](skills/git-workflow/references/git-troubleshooting.md) |
+#### [git-workflow](skills/git-workflow/docs/README.md)
+
+Topic-based branch management with safety checks and workflow guidance.
+
+**Key Features**: tnr/tn/tmg/td lifecycle | Three-stage safety checks | PR preparation | Advanced operations (fixup/amend) | Conflict resolution
+
+**[→ Full Documentation](skills/git-workflow/docs/README.md)**
+
+#### [gh-pr-create](skills/gh-pr-create/docs/README.md)
+
+Automated GitHub Pull Request creation with smart change analysis.
+
+**Key Features**: Auto-generate PR descriptions | Smart base branch detection | gh CLI integration | Structured templates
+
+**[→ Full Documentation](skills/gh-pr-create/docs/README.md)**
 
 ---
 
@@ -27,17 +38,27 @@ Intelligent Git topic workflow assistant based on production-grade aliases, prov
 
 ### Prerequisites
 
-1. **Git Aliases Configuration** (Required):
+1. **Git Aliases Configuration** (Required for git-workflow):
    ```bash
    # Location: ./git/aliases.gitconfig
    # Contains core commands: tnr, tn, tmg, td, fixup, bdf, blg, etc.
    ```
 
-2. **Claude Code** (Required):
+2. **GitHub CLI** (Required for gh-pr-create):
+   ```bash
+   # Install gh CLI
+   # macOS: brew install gh
+   # Linux: see https://github.com/cli/cli#installation
+
+   # Authenticate
+   gh auth login
+   ```
+
+3. **Claude Code** (Required):
    - Version: Supports Skills functionality
    - Configuration: `~/.claude/skills/` directory exists
 
-3. **Optional Dependencies**:
+4. **Optional Dependencies**:
    - `fzf`: Interactive selection (fixup, blf, pif)
    - `ripgrep`: Repository search (rg, rg-all)
 
@@ -45,7 +66,7 @@ Intelligent Git topic workflow assistant based on production-grade aliases, prov
 
 ### Installation
 
-Skill files are deployed to:
+Skills are deployed to:
 ```
 ~/.claude/skills/git-workflow/
 ├── SKILL.md
@@ -55,6 +76,13 @@ Skill files are deployed to:
     ├── git-pr-preparation.md
     ├── git-advanced-operations.md
     └── git-troubleshooting.md
+
+~/.claude/skills/gh-pr-create/
+├── SKILL.md
+└── references/
+    ├── pr-templates.md
+    ├── gh-integration.md
+    └── base-branch-detection.md
 ```
 
 Trigger rules added to:
@@ -64,219 +92,131 @@ Trigger rules added to:
 
 **Verify Installation**:
 ```bash
-# Check files
+# Check git-workflow files
 ls ~/.claude/skills/git-workflow/
+
+# Check gh-pr-create files
+ls ~/.claude/skills/gh-pr-create/
 
 # Verify trigger rules
 grep -A 20 "git-workflow" ~/.claude/skills/skill-rules.json
+grep -A 20 "gh-pr-create" ~/.claude/skills/skill-rules.json
+
+# Verify gh CLI authentication (for gh-pr-create)
+gh auth status
 ```
 
 ---
 
 ## Usage
 
-### Basic Command Mapping
+### Quick Examples
 
-| User Intent | Recommended Command | Description |
-|---------|---------|-----|
-| "Start new feature X" | `git tnr feature/X` | Create and push to remote |
-| "Local experiment" | `git tn experiment/X` | Local branch only |
-| "Finish feature" | `git tmg` | Merge and delete branch |
-| "Delete branch" | `git td [branch]` | Smart synchronized deletion |
-| "View diff" | `git bdf` | Compare with base branch |
-| "View log" | `git blg` | Topic branch commits |
-| "Prepare PR" | Checklist + workflow | PR preparation guidance |
-| "Modify history" | `git fixup` | Interactive commit modification |
-| "Resolve conflicts" | Conflict resolution workflow | edit-unmerged workflow |
-
-### Trigger Examples
-
-**Chinese Trigger**:
+**git-workflow**: Natural language commands for branch management
 ```
-You: "开始新功能 user-authentication"
-Skill Response:
-  ✓ Current branch: main
-  ✓ Working directory: clean
-  Recommended command: git tnr feature/user-authentication
-  Description: Will create and push branch to remote
+"开始新功能 user-auth" → Creates and pushes feature branch
+"完成功能" → Merges and cleans up branch
+"查看 branch diff" → Shows changes vs base branch
 ```
 
-**English Trigger**:
+**gh-pr-create**: Automated PR creation
 ```
-You: "finish this feature"
-Skill Response:
-  ✓ Current branch: feature/user-auth
-  ✓ Working directory: clean
-  ✓ 3 commits pending merge
-  Recommended command: git tmg
-  Description: Will merge --no-ff and auto-delete branch
+"创建 PR" → Analyzes commits, generates description, creates PR
+"create pull request" → Same with auto-push if needed
 ```
 
-**Mixed Trigger**:
-```
-You: "查看 branch diff"
-Skill Response:
-  ✓ Current branch: feature/user-auth
-  Recommended command: git bdf
-  Description: Shows all differences with main
-```
+**[→ git-workflow Full Usage Guide](skills/git-workflow/docs/README.md)**
+**[→ gh-pr-create Full Usage Guide](skills/gh-pr-create/docs/README.md)**
 
 ---
 
-## Typical Workflows
+## Typical Workflow
 
-### Scenario 1: Complete Feature Development
+### Complete Feature Development (End-to-End)
+
+Combining both skills for a full development cycle:
 
 ```bash
-# 1. Create branch
+# 1. Create branch (git-workflow)
 You: "开始新功能 user-auth"
 → git tnr feature/user-auth
 
-# 2. Save progress during development
+# 2. Save progress during development (git-workflow)
 You: "临时保存"
 → git save "WIP: implementing login"
 
-# 3. Check progress
+# 3. Check progress (git-workflow)
 You: "查看我改了什么"
 → git bdf  # Diff
 → git blg  # Log
 
-# 4. Modify history
+# 4. Modify history (git-workflow)
 You: "修改之前的 commit"
 → git fixup  # fzf selection
 
-# 5. Prepare PR
-You: "准备 PR"
-→ Provides checklist
-→ git blg confirm commits
-→ git bdf --stat statistics
+# 5. Create PR (gh-pr-create)
+You: "创建 PR"
+→ Analyzes all commits and file changes
+→ Generates structured PR description (Summary + Test Plan)
+→ Pushes branch if needed
+→ Creates PR: https://github.com/user/repo/pull/123
 
-# 6. Merge
+# 6. After PR merged on GitHub, cleanup (git-workflow)
 You: "完成功能"
 → git tmg  # merge and delete branch
 ```
 
----
-
-### Scenario 2: Conflict Resolution
-
-```bash
-# Merge conflict
-You: "merge 冲突怎么办"
-Skill provides:
-  1. git edit-unmerged  # Edit conflicts
-  2. Manually resolve conflicts
-  3. git add-unmerged   # Mark as resolved
-  4. git mgc            # Continue merge
-```
+**More Scenarios**:
+- **[git-workflow scenarios](skills/git-workflow/docs/README.md#typical-workflows)**: Conflict resolution, misoperation recovery
+- **[gh-pr-create scenarios](skills/gh-pr-create/docs/README.md#typical-workflows)**: PR templates, base branch detection
 
 ---
 
-### Scenario 3: Misoperation Recovery
+## Architecture
 
-```bash
-# Accidentally deleted branch
-You: "误删分支怎么办"
-Skill provides:
-  1. git reflog | grep "branch-name"
-  2. Find the last commit of the branch
-  3. git checkout -b recovered <hash>
-```
+### Design Principles
 
----
+**Separation of Concerns**:
+- **Skills Layer**: Intent recognition, safety checks, guidance
+- **Aliases Layer**: Git operations, runtime safety, error handling
 
-## Architecture Design
+**YAGNI Approach**:
+- Don't rewrite aliases logic
+- Focus on intelligent wrapping and context awareness
 
-### Responsibility Boundaries
-
-```
-User Natural Language
-    ↓ (Intent Recognition)
-Git-Workflow Skill
-    ↓ (State Check + Command Generation)
-Production Git Aliases
-    ↓ (Execution + Built-in Safety Mechanisms)
-Git Operations
-```
-
-**Skill Responsibilities**:
-- ✅ Intent understanding and command mapping
-- ✅ Pre-execution state checks
-- ✅ Workflow guidance
-- ✅ Problem diagnosis
-
-**Aliases Responsibilities**:
-- ✅ Actual Git operations
-- ✅ Runtime safety checks (auto stash, sync, protection)
-- ✅ Error handling
-
-**What We Don't Do**:
-- ❌ Don't rewrite aliases logic (YAGNI)
-- ❌ Don't modify dotfiles configuration
-- ❌ Don't add new shell scripts
-
----
-
-### Three-Stage Safety Checks
-
-```
-Pre-execution (Pre-check)
-├─ Working directory state: git working-dir-dirty
-├─ Current branch: git current-branch
-├─ Remote sync: git ahead-count / behind-count
-└─ Branch existence: git remote-branch
-
-During execution (Runtime)
-└─ Aliases built-in safety mechanisms
-
-Post-execution (Post-check)
-├─ Result verification: git status / current-branch
-└─ Expectation confirmation: branch switch/delete/merge commit
-```
+**[→ Full Architecture Documentation](skills/git-workflow/docs/README.md#architecture-design)**
 
 ---
 
 ## Trigger Rules
 
-### Keywords
+Trigger rules are defined in `~/.claude/skills/skill-rules.json`.
 
-**Chinese**:
-- topic分支、功能分支、合并分支、删除分支
-- 修改提交、分支差异、准备PR、git工作流
-- tnr、tmg
+### git-workflow
 
-**English**:
-- topic branch, feature branch, git workflow
-- merge branch, delete branch, fixup
-- branch diff, branch log
+**Example Keywords**: "开始新功能", "完成功能", "git workflow", "branch diff", "fixup"
 
-### Intent Patterns
+**[→ Complete Trigger Rules](skills/git-workflow/docs/README.md#trigger-rules)**
 
-```regex
-(start|create|new|开始|创建).*(feature|topic|branch|功能|分支)
-(merge|finish|complete|合并|完成).*(branch|feature|topic|分支|功能)
-(delete|remove|clean|删除|清理).*(branch|topic|分支)
-(show|view|diff|log|查看|显示).*(branch|changes|差异|修改)
-(prepare|ready|check|准备|检查).*(pr|pull request)
-\bfixup\b|修改.*提交|amend
-(conflict|resolve|冲突|解决)
-git.*(workflow|工作流)
-```
+### gh-pr-create
+
+**Example Keywords**: "创建 PR", "create pr", "open pull request"
+
+**[→ Complete Trigger Rules](skills/gh-pr-create/docs/README.md#trigger-rules)**
 
 ---
 
-## Statistics
+## Project Statistics
 
 | Metric | Value |
 |-----|------|
-| Document Count | 6 |
-| Total Lines of Code | 3620 |
-| Main Document | 366 lines |
-| Core Workflow | 724 lines |
-| Safety Mechanisms | 227 lines |
-| PR Preparation | 740 lines |
-| Advanced Operations | 766 lines |
-| Troubleshooting | 797 lines |
+| Total Skills | 2 |
+| Total Documents | 10 |
+| Total Lines | 6029 |
+
+**Breakdown**:
+- **[git-workflow](skills/git-workflow/docs/README.md#statistics)**: 6 documents, 3620 lines
+- **[gh-pr-create](skills/gh-pr-create/docs/README.md#statistics)**: 4 documents, 2409 lines
 
 ---
 
@@ -334,100 +274,118 @@ git.*(workflow|工作流)
 
 ```
 git-workflow-skill/
-├── README.md                    # This file
-├── docs/
-│   └── testing.md              # Test verification documentation
-└── examples/
-    └── scenarios.md            # Usage scenario demonstrations
+├── README.md                    # This file (English)
+├── README_zh-CN.md             # Chinese version
+├── skills/
+│   ├── git-workflow/           # Git workflow skill
+│   │   ├── SKILL.md
+│   │   ├── references/
+│   │   ├── docs/
+│   │   │   ├── README.md       # Development documentation (English)
+│   │   │   ├── README_zh-CN.md # Development documentation (Chinese)
+│   │   │   └── testing.md
+│   │   └── examples/scenarios.md
+│   └── gh-pr-create/           # GitHub PR creation skill
+│       ├── SKILL.md
+│       ├── references/
+│       ├── docs/
+│       │   ├── README.md       # Development documentation (English)
+│       │   ├── README_zh-CN.md # Development documentation (Chinese)
+│       │   └── testing.md
+│       └── examples/scenarios.md
+└── git/                         # Git aliases configuration
+    ├── aliases.gitconfig
+    └── Git-Aliases-Reference-Manual.md
 ```
 
-### Modifying the Skill
+### Modifying the Skills
+
+**git-workflow Skill**:
 
 1. **Modify Main Document**:
    ```bash
-   vim ~/.claude/skills/git-workflow/SKILL.md
+   vim skills/git-workflow/SKILL.md
+   rsync -av --exclude 'docs/' --exclude 'examples/' skills/git-workflow/ ~/.claude/skills/git-workflow/
    ```
 
 2. **Modify Reference Documents**:
    ```bash
-   vim ~/.claude/skills/git-workflow/references/<document>.md
+   vim skills/git-workflow/references/<document>.md
+   rsync -av --exclude 'docs/' --exclude 'examples/' skills/git-workflow/ ~/.claude/skills/git-workflow/
    ```
 
-3. **Modify Trigger Rules**:
+**gh-pr-create Skill**:
+
+1. **Modify Main Document**:
+   ```bash
+   vim skills/gh-pr-create/SKILL.md
+   rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
+   ```
+
+2. **Modify Reference Documents**:
+   ```bash
+   vim skills/gh-pr-create/references/<document>.md
+   rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
+   ```
+
+3. **Verify gh CLI**:
+   ```bash
+   gh auth status
+   ```
+
+**Trigger Rules**:
+
+1. **Modify Trigger Rules**:
    ```bash
    vim ~/.claude/skills/skill-rules.json
-   # Modify keywords or intentPatterns in git-workflow entry
+   # Modify keywords or intentPatterns for git-workflow or gh-pr-create
    ```
 
-4. **Verify Modifications**:
+2. **Verify Modifications**:
    ```bash
    # JSON format check
    python3 -m json.tool ~/.claude/skills/skill-rules.json > /dev/null
 
-   # Test trigger
-   # Test new keywords or intents in Claude Code
+   # Test triggers in Claude Code
    ```
 
 ---
 
 ## Troubleshooting
 
-### Skill Not Triggering
+### Common Issues
 
-**Possible Causes**:
-1. Keywords don't match
-2. Intent patterns don't match
-3. skill-rules.json format error
-
-**Troubleshooting Steps**:
+**Skills Not Triggering**:
 ```bash
-# 1. Check JSON format
-python3 -m json.tool ~/.claude/skills/skill-rules.json
+# Verify trigger rules
+grep -E "git-workflow|gh-pr-create" ~/.claude/skills/skill-rules.json
 
-# 2. View trigger rules
-grep -A 30 "git-workflow" ~/.claude/skills/skill-rules.json
-
-# 3. Try exact keywords
-# Input: "tnr" or "git workflow"
+# Verify skill files exist
+ls ~/.claude/skills/git-workflow/
+ls ~/.claude/skills/gh-pr-create/
 ```
 
----
-
-### Command Not Found
-
-**Possible Causes**:
-Git aliases not configured or incorrect path
-
-**Troubleshooting Steps**:
+**Git Aliases Not Found**:
 ```bash
-# 1. Check if aliases are loaded
+# Check if aliases are loaded
 git config --get-regexp alias.tnr
-git config --get-regexp alias.tmg
 
-# 2. Check aliases file path
+# Verify aliases file
 ls ./git/aliases.gitconfig
-
-# 3. Confirm Git config reference
-git config --get include.path
 ```
 
----
-
-### State Check Failure
-
-**Possible Causes**:
-Helper commands (working-dir-dirty, current-branch, etc.) don't exist
-
-**Troubleshooting Steps**:
+**gh CLI Issues**:
 ```bash
-# Test helper commands
-git working-dir-dirty
-git current-branch
-git base-branch
+# Authenticate with GitHub
+gh auth login
 
-# If failed, check aliases configuration
-git config --get-regexp alias | grep "working-dir-dirty"
+# Verify authentication
+gh auth status
 ```
+
+**Detailed Troubleshooting**:
+- **[git-workflow troubleshooting](skills/git-workflow/docs/README.md#troubleshooting)**: Trigger issues, command errors, state checks
+- **[gh-pr-create troubleshooting](skills/gh-pr-create/docs/README.md#troubleshooting)**: Authentication, base branch detection, PR creation
 
 ---
 
