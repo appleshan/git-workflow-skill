@@ -283,7 +283,7 @@ git checkout -b feature/dark-mode
 # Auto-detects fork scenario and creates to upstream
 ```
 
-More scenarios: [examples/scenarios.md](examples/scenarios.md)
+More scenarios: [scenarios.md](../examples/scenarios.md)
 
 ---
 
@@ -325,15 +325,15 @@ Trigger rules are defined in `~/.claude/skills/skill-rules.json`.
 
 ### Core Documentation
 
-- **[SKILL.md](SKILL.md)**: Main skill definition and core workflow
-- **[docs/testing.md](docs/testing.md)**: Complete test verification checklist
-- **[examples/scenarios.md](examples/scenarios.md)**: 10+ real-world usage scenarios
+- **[SKILL.md](../SKILL.md)**: Main skill definition and core workflow
+- **[testing.md](testing.md)**: Complete test verification checklist
+- **[scenarios.md](../examples/scenarios.md)**: 10+ real-world usage scenarios
 
 ### Reference Documentation
 
-- **[references/pr-templates.md](references/pr-templates.md)**: PR description templates and generation strategies
-- **[references/gh-integration.md](references/gh-integration.md)**: GitHub CLI integration details
-- **[references/base-branch-detection.md](references/base-branch-detection.md)**: Base branch detection algorithm
+- **[pr-templates.md](../references/pr-templates.md)**: PR description templates and generation strategies
+- **[gh-integration.md](../references/gh-integration.md)**: GitHub CLI integration details
+- **[base-branch-detection.md](../references/base-branch-detection.md)**: Base branch detection algorithm
 
 ---
 
@@ -410,7 +410,7 @@ git config branch.$(git branch --show-current).base correct-base
 # Input: "create pr with base correct-base"
 ```
 
-More troubleshooting: [references/gh-integration.md#troubleshooting](references/gh-integration.md#troubleshooting)
+More troubleshooting: [gh-integration.md#troubleshooting](../references/gh-integration.md#troubleshooting)
 
 ---
 
@@ -497,8 +497,8 @@ gh pr ready <PR-number>
 ### Related Resources
 
 - Git Workflow Skill: [../../git-workflow/docs/README.md](../../git-workflow/docs/README.md)
-- Testing Guide: [docs/testing.md](docs/testing.md)
-- Example Scenarios: [examples/scenarios.md](examples/scenarios.md)
+- Testing Guide: [testing.md](testing.md)
+- Example Scenarios: [scenarios.md](../examples/scenarios.md)
 
 ---
 

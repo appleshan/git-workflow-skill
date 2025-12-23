@@ -254,7 +254,7 @@ git checkout -b feature/dark-mode
 # 自动识别 affected packages 并生成对应测试
 ```
 
-更多场景参见 [examples/scenarios.md](examples/scenarios.md)
+更多场景参见 [scenarios.md](../examples/scenarios.md)
 
 ## 配置
 
@@ -303,15 +303,15 @@ git config branch.feature-x.base release/v1.2
 
 ### 核心文档
 
-- **[SKILL.md](SKILL.md)**: 主 Skill 定义和核心流程
-- **[docs/testing.md](docs/testing.md)**: 完整测试验证清单
-- **[examples/scenarios.md](examples/scenarios.md)**: 10+ 实际使用场景
+- **[SKILL.md](../SKILL.md)**: 主 Skill 定义和核心流程
+- **[testing.md](testing.md)**: 完整测试验证清单
+- **[scenarios.md](../examples/scenarios.md)**: 10+ 实际使用场景
 
 ### 参考文档
 
-- **[references/pr-templates.md](references/pr-templates.md)**: PR 描述模板库和生成策略
-- **[references/gh-integration.md](references/gh-integration.md)**: GitHub CLI 集成详解
-- **[references/base-branch-detection.md](references/base-branch-detection.md)**: Base branch 识别算法
+- **[pr-templates.md](../references/pr-templates.md)**: PR 描述模板库和生成策略
+- **[gh-integration.md](../references/gh-integration.md)**: GitHub CLI 集成详解
+- **[base-branch-detection.md](../references/base-branch-detection.md)**: Base branch 识别算法
 
 ---
 
@@ -382,7 +382,7 @@ git config branch.$(git branch --show-current).base correct-base
 # 输入: "创建 PR，base 是 correct-base"
 ```
 
-更多故障排查参见 [references/gh-integration.md#troubleshooting](references/gh-integration.md#troubleshooting)
+更多故障排查参见 [gh-integration.md#troubleshooting](../references/gh-integration.md#troubleshooting)
 
 ## 最佳实践
 
@@ -451,9 +451,9 @@ gh pr ready <PR-number>
 
 欢迎贡献！主要贡献方式：
 
-1. **添加新的 PR 模板**: 编辑 `references/pr-templates.md`
-2. **改进 base branch 识别**: 编辑 `references/base-branch-detection.md`
-3. **添加使用场景**: 编辑 `examples/scenarios.md`
+1. **添加新的 PR 模板**: 编辑 `../references/pr-templates.md`
+2. **改进 base branch 识别**: 编辑 `../references/base-branch-detection.md`
+3. **添加使用场景**: 编辑 `../examples/scenarios.md`
 4. **报告 bug 或建议**: 创建 issue
 
 ## License

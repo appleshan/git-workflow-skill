@@ -125,7 +125,7 @@ gh auth status
 "create pull request" → Same with auto-push if needed
 ```
 
-**[→ git-workflow Full Usage Guide](skills/git-workflow/docs/README.md)**
+**[→ git-workflow Full Usage Guide](skills/git-workflow/docs/README.md)**<br>
 **[→ gh-pr-create Full Usage Guide](skills/gh-pr-create/docs/README.md)**
 
 ---

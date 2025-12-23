@@ -31,11 +31,11 @@ Git 操作
 
 | 模块 | 功能 | 文档 |
 |-----|------|------|
-| **核心工作流** | tnr/tn/tmg/td 分支生命周期管理 | [git-topic-workflow.md](references/git-topic-workflow.md) |
-| **安全机制** | 三阶段检查、安全边界、错误处理 | [git-safety-mechanisms.md](references/git-safety-mechanisms.md) |
-| **PR 准备** | 检查清单、质量保证、PR 描述模板 | [git-pr-preparation.md](references/git-pr-preparation.md) |
-| **高级操作** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](references/git-advanced-operations.md) |
-| **故障排查** | 冲突解决、误操作恢复、紧急救援 | [git-troubleshooting.md](references/git-troubleshooting.md) |
+| **核心工作流** | tnr/tn/tmg/td 分支生命周期管理 | [git-topic-workflow.md](../references/git-topic-workflow.md) |
+| **安全机制** | 三阶段检查、安全边界、错误处理 | [git-safety-mechanisms.md](../references/git-safety-mechanisms.md) |
+| **PR 准备** | 检查清单、质量保证、PR 描述模板 | [git-pr-preparation.md](../references/git-pr-preparation.md) |
+| **高级操作** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](../references/git-advanced-operations.md) |
+| **故障排查** | 冲突解决、误操作恢复、紧急救援 | [git-troubleshooting.md](../references/git-troubleshooting.md) |
 
 ---
 
@@ -348,7 +348,7 @@ python3 -m json.tool ~/.claude/skills/skill-rules.json > /dev/null
 
 ### 测试
 
-参考 [docs/testing.md](docs/testing.md) 获取完整测试用例：
+参考 [testing.md](testing.md) 获取完整测试用例：
 
 **核心测试类别**：
 1. **触发测试**：中文/英文/混合关键词准确性
@@ -429,8 +429,8 @@ git config --get-regexp alias | grep "working-dir-dirty"
 - **Git Aliases Reference Manual**：
   - 本地：`../../git/Git-Aliases-Reference-Manual.md`
   - GitHub：https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/Git-Aliases-Reference-Manual.md
-- **测试指南**：[docs/testing.md](docs/testing.md)
-- **示例场景**：[examples/scenarios.md](examples/scenarios.md)
+- **测试指南**：[testing.md](testing.md)
+- **示例场景**：[scenarios.md](../examples/scenarios.md)
 
 ### 外部资源
 

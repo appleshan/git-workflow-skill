@@ -31,11 +31,11 @@ Git Operations
 
 | Module | Functionality | Documentation |
 |-----|------|------|
-| **Core Workflow** | tnr/tn/tmg/td branch lifecycle management | [git-topic-workflow.md](references/git-topic-workflow.md) |
-| **Safety Mechanisms** | Three-stage checks, safety boundaries, error handling | [git-safety-mechanisms.md](references/git-safety-mechanisms.md) |
-| **PR Preparation** | Checklists, quality assurance, PR description templates | [git-pr-preparation.md](references/git-pr-preparation.md) |
-| **Advanced Operations** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](references/git-advanced-operations.md) |
-| **Troubleshooting** | Conflict resolution, misoperation recovery, emergency rescue | [git-troubleshooting.md](references/git-troubleshooting.md) |
+| **Core Workflow** | tnr/tn/tmg/td branch lifecycle management | [git-topic-workflow.md](../references/git-topic-workflow.md) |
+| **Safety Mechanisms** | Three-stage checks, safety boundaries, error handling | [git-safety-mechanisms.md](../references/git-safety-mechanisms.md) |
+| **PR Preparation** | Checklists, quality assurance, PR description templates | [git-pr-preparation.md](../references/git-pr-preparation.md) |
+| **Advanced Operations** | fixup/amend/rebase/cherry-pick | [git-advanced-operations.md](../references/git-advanced-operations.md) |
+| **Troubleshooting** | Conflict resolution, misoperation recovery, emergency rescue | [git-troubleshooting.md](../references/git-troubleshooting.md) |
 
 ---
 
@@ -348,7 +348,7 @@ python3 -m json.tool ~/.claude/skills/skill-rules.json > /dev/null
 
 ### Testing
 
-Refer to [docs/testing.md](docs/testing.md) for comprehensive test cases:
+Refer to [testing.md](testing.md) for comprehensive test cases:
 
 **Core Test Categories**:
 1. **Trigger Tests**: Chinese/English/mixed keyword accuracy
@@ -429,8 +429,8 @@ git config --get-regexp alias | grep "working-dir-dirty"
 - **Git Aliases Reference Manual**:
   - Local: `../../git/Git-Aliases-Reference-Manual.md`
   - GitHub: https://github.com/appleshan/dotfiles/blob/stow/git/.config/git/conf/Git-Aliases-Reference-Manual.md
-- **Testing Guide**: [docs/testing.md](docs/testing.md)
-- **Example Scenarios**: [examples/scenarios.md](examples/scenarios.md)
+- **Testing Guide**: [testing.md](testing.md)
+- **Example Scenarios**: [scenarios.md](../examples/scenarios.md)
 
 ### External Resources
 

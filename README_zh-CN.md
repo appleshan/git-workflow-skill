@@ -125,7 +125,7 @@ gh auth status
 "create pull request" → 同上，必要时自动推送
 ```
 
-**[→ git-workflow 完整使用指南](skills/git-workflow/docs/README_zh-CN.md)**
+**[→ git-workflow 完整使用指南](skills/git-workflow/docs/README_zh-CN.md)**<br>
 **[→ gh-pr-create 完整使用指南](skills/gh-pr-create/docs/README_zh-CN.md)**
 
 ---
