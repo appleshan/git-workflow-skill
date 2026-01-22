@@ -16,25 +16,14 @@ Git-Workflow Skill 是一个 **文档项目**，为 Claude Code 提供智能 Git
 ```
 git-workflow-skill/
 ├── skills/
-│   ├── git-workflow/              # Git 工作流 Skill
-│   │   ├── SKILL.md               # 主 Skill 定义（366 行）
-│   │   ├── references/            # 参考文档（5 个文件，共 3254 行）
-│   │   │   ├── git-topic-workflow.md
-│   │   │   ├── git-safety-mechanisms.md
-│   │   │   ├── git-pr-preparation.md
-│   │   │   ├── git-advanced-operations.md
-│   │   │   └── git-troubleshooting.md
-│   │   ├── docs/                  # 开发文档（不部署）
-│   │   │   ├── README.md          # 英文开发文档
-│   │   │   ├── README_zh-CN.md    # 中文开发文档
-│   │   │   └── testing.md
-│   │   └── examples/scenarios.md
-│   └── gh-pr-create/              # GitHub PR 创建 Skill
-│       ├── SKILL.md               # PR 创建 Skill 定义
-│       ├── references/            # PR 相关参考文档
-│       │   ├── pr-templates.md
-│       │   ├── gh-integration.md
-│       │   └── base-branch-detection.md
+│   └── git-workflow/              # Git 工作流 Skill
+│       ├── SKILL.md               # 主 Skill 定义（366 行）
+│       ├── references/            # 参考文档（5 个文件，共 3254 行）
+│       │   ├── git-topic-workflow.md
+│       │   ├── git-safety-mechanisms.md
+│       │   ├── git-pr-preparation.md
+│       │   ├── git-advanced-operations.md
+│       │   └── git-troubleshooting.md
 │       ├── docs/                  # 开发文档（不部署）
 │       │   ├── README.md          # 英文开发文档
 │       │   ├── README_zh-CN.md    # 中文开发文档
@@ -49,7 +38,6 @@ git-workflow-skill/
 
 部署位置（外部）:
 ~/.claude/skills/git-workflow/     # Git 工作流 Skill 运行位置
-~/.claude/skills/gh-pr-create/     # PR 创建 Skill 运行位置
 ~/.claude/skills/skill-rules.json  # 触发规则配置
 ```
 
@@ -113,21 +101,6 @@ rsync -av --delete --exclude 'docs/' --exclude 'examples/' skills/git-workflow/ 
 diff skills/git-workflow/SKILL.md ~/.claude/skills/git-workflow/SKILL.md
 ```
 
-### 同步 gh-pr-create Skill
-
-修改 `skills/gh-pr-create/` 下的文件后：
-
-```bash
-# 同步所有 gh-pr-create 文件（排除开发文档）
-rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
-
-# 验证同步结果
-diff skills/gh-pr-create/SKILL.md ~/.claude/skills/gh-pr-create/SKILL.md
-
-# 验证 gh CLI 认证
-gh auth status
-```
-
 ### 快速验证修改
 
 修改后立即验证效果：
@@ -136,16 +109,12 @@ gh auth status
 # 1. 同步 git-workflow 文档（排除开发文档）
 rsync -av --exclude 'docs/' --exclude 'examples/' skills/git-workflow/ ~/.claude/skills/git-workflow/
 
-# 2. 同步 gh-pr-create 文档（排除开发文档）
-rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/
-
-# 3. 在 Claude Code 中测试触发（手动测试）
+# 2. 在 Claude Code 中测试触发（手动测试）
 # Git workflow: "开始新功能 test" 或 "git workflow help"
 # PR creation: "创建 PR" 或 "create pr"
 
-# 4. 检查文档引用是否正确
+# 3. 检查文档引用是否正确
 grep -r "references/" skills/git-workflow/SKILL.md
-grep -r "references/" skills/gh-pr-create/SKILL.md
 ```
 
 ## Skills Overview
@@ -168,47 +137,6 @@ grep -r "references/" skills/gh-pr-create/SKILL.md
 - 英文: "start feature" / "merge branch" / "git workflow"
 
 **详细文档**: 见 "Core Git Aliases" 章节
-
-### 2. gh-pr-create Skill
-
-**用途**: GitHub Pull Request 自动化创建
-
-**核心功能**:
-- 智能收集 commits 和变更信息
-- 自动生成结构化 PR 描述（Summary + Test Plan）
-- Base branch 智能识别（main/master/自定义）
-- 三阶段安全检查（gh 认证 + 分支状态 + 工作区状态）
-
-**部署位置**: `~/.claude/skills/gh-pr-create/`
-
-**依赖**: GitHub CLI (`gh`) 必须已安装并认证
-
-**触发词**:
-- 中文: "创建 PR" / "开 PR" / "提交 PR"
-- 英文: "create pr" / "open pr" / "submit pr"
-
-**基本工作流**:
-```bash
-# 1. 开发功能（使用 git-workflow skill）
-git tnr feature/user-auth
-# ... 开发和提交 ...
-
-# 2. 创建 PR（使用 gh-pr-create skill）
-# 在 Claude Code 输入: "创建 PR"
-# Skill 自动: 收集信息 → 生成描述 → 推送分支 → 创建 PR
-```
-
-**验证安装**:
-```bash
-# 检查 gh CLI
-gh auth status
-
-# 检查 skill 文件
-ls ~/.claude/skills/gh-pr-create/
-
-# 验证触发规则
-grep -A 20 "gh-pr-create" ~/.claude/skills/skill-rules.json
-```
 
 ## Architecture Principles
 
@@ -281,26 +209,14 @@ Skill 依赖的生产级 Git aliases 位于：
 3. 同步到部署位置
 4. 验证：相关功能测试 + 交叉引用检查
 
-### 修改 gh-pr-create Skill
-
-1. 编辑 `skills/gh-pr-create/SKILL.md`
-2. 重点关注：PR 描述模板、base branch 检测逻辑、安全检查清单
-3. 同步到部署位置：`rsync -av --exclude 'docs/' --exclude 'examples/' skills/gh-pr-create/ ~/.claude/skills/gh-pr-create/`
-4. 验证：
-   - `gh auth status` 检查 gh CLI 认证
-   - 创建测试分支并触发 "创建 PR"
-   - 参考 `skills/gh-pr-create/docs/testing.md`
-
 ### 修改触发规则
 
 1. 编辑 `~/.claude/skills/skill-rules.json`（注意：不在本仓库）
 2. 修改对应 skill 条目的 `keywords` 或 `intentPatterns`
    - `git-workflow`: 工作流触发规则
-   - `gh-pr-create`: PR 创建触发规则
 3. JSON 格式验证：`python3 -m json.tool ~/.claude/skills/skill-rules.json`
 4. 验证：
    - git-workflow: 运行 `skills/git-workflow/docs/testing.md` 中的测试 1.x 和 4.x
-   - gh-pr-create: 运行 `skills/gh-pr-create/docs/testing.md` 中的触发测试
 
 ## Documentation Style
 
@@ -313,7 +229,7 @@ Skill 依赖的生产级 Git aliases 位于：
 
 ## Common Workflows
 
-### 完整功能开发 + PR 创建工作流
+### 完整功能开发
 
 结合两个 skills 的端到端流程：
 
@@ -348,18 +264,7 @@ git commit -m "feat: implement user authentication"
 执行: git fixup (交互式选择)
 ```
 
-**5. 创建 PR** (gh-pr-create)
-```
-输入: "创建 PR"
-Skill 自动执行:
-  - 收集所有 commits 信息
-  - 分析文件变更
-  - 生成 PR 描述（Summary + Test Plan）
-  - 推送分支到 remote（如需要）
-  - 创建 PR 并返回 URL
-```
-
-**6. PR 合并后清理** (git-workflow)
+**5. 合并后清理** (git-workflow)
 ```
 # PR 在 GitHub 上合并后
 输入: "完成功能"
